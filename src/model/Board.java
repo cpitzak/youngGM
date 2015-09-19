@@ -1,6 +1,7 @@
 package model;
 
 import interfaces.PieceLibrary;
+//@formatter:off
 /**
  * 0x88 board
  * 
@@ -44,58 +45,42 @@ import interfaces.PieceLibrary;
  * @author Clint
  *
  */
+//@formatter:on
 public class Board {
 
 	private Integer[] board = new Integer[128];
-	private Piece[] allPieces = new Piece[33];
 
 	public Board() {
 		setupBoard();
 	}
 
 	private void setupBoard() {
-		allPieces[0] = new Piece(PieceLibrary.WHITE_ROOK, 0);
-		allPieces[1] = new Piece(PieceLibrary.WHITE_KNIGHT, 1);
-		allPieces[2] = new Piece(PieceLibrary.WHITE_BISHOP, 2);
-		allPieces[3] = new Piece(PieceLibrary.WHITE_QUEEN, 3);
-		allPieces[4] = new Piece(PieceLibrary.WHITE_KING, 4);
-		allPieces[5] = new Piece(PieceLibrary.WHITE_BISHOP, 5);
-		allPieces[6] = new Piece(PieceLibrary.WHITE_KNIGHT, 6);
-		allPieces[7] = new Piece(PieceLibrary.WHITE_ROOK, 7);
-		for (int i = 8, startPosition = 16; i < 16; i++, startPosition++) {
-			allPieces[i] = new Piece(PieceLibrary.WHITE_PAWN, startPosition);
+		board[0] = PieceLibrary.WHITE_ROOK;
+		board[1] = PieceLibrary.WHITE_KNIGHT;
+		board[2] = PieceLibrary.WHITE_BISHOP;
+		board[3] = PieceLibrary.WHITE_QUEEN;
+		board[4] = PieceLibrary.WHITE_KING;
+		board[5] = PieceLibrary.WHITE_BISHOP;
+		board[6] = PieceLibrary.WHITE_KNIGHT;
+		board[7] = PieceLibrary.WHITE_ROOK;
+		
+		for (int startPosition = 16; startPosition <= 23; startPosition++) {
+			board[startPosition] = PieceLibrary.WHITE_PAWN;
 		}
 
-		allPieces[17] = new Piece(PieceLibrary.BLACK_ROOK, 112);
-		allPieces[18] = new Piece(PieceLibrary.BLACK_KNIGHT, 113);
-		allPieces[19] = new Piece(PieceLibrary.BLACK_BISHOP, 114);
-		allPieces[20] = new Piece(PieceLibrary.BLACK_QUEEN, 115);
-		allPieces[21] = new Piece(PieceLibrary.BLACK_KING, 116);
-		allPieces[22] = new Piece(PieceLibrary.BLACK_BISHOP, 117);
-		allPieces[23] = new Piece(PieceLibrary.BLACK_KNIGHT, 118);
-		allPieces[24] = new Piece(PieceLibrary.BLACK_ROOK, 119);
-		for (int i = 25, startPosition = 96; i < 33; i++, startPosition++) {
-			allPieces[i] = new Piece(PieceLibrary.BLACK_PAWN, startPosition);
+		board[112] = PieceLibrary.BLACK_ROOK;
+		board[113] = PieceLibrary.BLACK_KNIGHT;
+		board[114] = PieceLibrary.BLACK_BISHOP;
+		board[115] = PieceLibrary.BLACK_QUEEN;
+		board[116] = PieceLibrary.BLACK_KING;
+		board[117] = PieceLibrary.BLACK_BISHOP;
+		board[118] = PieceLibrary.BLACK_KNIGHT;
+		board[119] = PieceLibrary.BLACK_ROOK;
+		
+		for (int startPosition = 96; startPosition <= 103; startPosition++) {
+			board[startPosition] = PieceLibrary.BLACK_PAWN;
 		}
 
-		/* setup board with index into piece arrays for speed optimizations */
-
-		// white back row pieces
-		for (int i = 0; i < 8; i++) {
-			board[i] = i;
-		}
-		// white pawns
-		for (int pieceIndex = 8, boardPosition = 16; pieceIndex < 16; pieceIndex++, boardPosition++) {
-			board[boardPosition] = pieceIndex;
-		}
-		// black back row pieces
-		for (int pieceIndex = 17, boardPosition = 112; pieceIndex < 25; pieceIndex++, boardPosition++) {
-			board[boardPosition] = pieceIndex;
-		}
-		// black pawns
-		for (int pieceIndex = 25, boardPosition = 96; pieceIndex < 33; pieceIndex++, boardPosition++) {
-			board[boardPosition] = pieceIndex;
-		}
 		System.out.println();
 	}
 
@@ -103,10 +88,6 @@ public class Board {
 		return board;
 	}
 
-	public Piece[] getAllPieces() {
-		return allPieces;
-	}
-	
 	public void printBoardPieceIndexes() {
 		printHelper(false);
 	}
@@ -134,36 +115,36 @@ public class Board {
 	 *            the index of the 0x88 board
 	 */
 	private void printRow(int startIndex, boolean pretty) {
-		Integer pieceIndex = board[startIndex++];
+		Integer piece = board[startIndex++];
 		String s = null;
-		if (pieceIndex == null) {
+		if (piece == null) {
 			s = ". ";
 		} else if (pretty) {
-			s = convertPieceToString(allPieces[pieceIndex].getPiece());
+			s = convertPieceToString(piece);
 		} else {
-			s = pieceIndex.toString();
+			s = piece.toString();
 		}
 		System.out.print(s);
 		
 		for(int i = 1; i < 7; i++, startIndex++) {
-			pieceIndex = board[startIndex];
-			if (pieceIndex == null) {
+			piece = board[startIndex];
+			if (piece == null) {
 				s = ". ";
 			} else if (pretty) {
-				s = " " + convertPieceToString(allPieces[pieceIndex].getPiece());
+				s = " " + convertPieceToString(piece);
 			} else {
-				s = " " + pieceIndex;
+				s = " " + piece;
 			}
 			System.out.print(s);
 		}
 		
-		pieceIndex = board[startIndex++];
-		if (pieceIndex == null) {
+		piece = board[startIndex++];
+		if (piece == null) {
 			s = ".";
 		} else if (pretty) {
-			s = " " + convertPieceToString(allPieces[pieceIndex].getPiece());
+			s = " " + convertPieceToString(piece);
 		} else {
-			s = " " + pieceIndex;
+			s = " " + piece;
 		}
 		System.out.print(s);
 		
@@ -171,7 +152,7 @@ public class Board {
 		System.out.print(" |");
 		for (int i = 0; i < 8; i++, startIndex++) {
 			if (pretty) {
-				System.out.print(" " + board[startIndex]);
+				System.out.print(" " + piece);
 			} else {
 				System.out.print(" " + startIndex);
 			}
