@@ -1,5 +1,7 @@
 package model;
 
+import org.apache.log4j.Logger;
+
 import interfaces.PieceLibrary;
 
 //@formatter:off
@@ -49,13 +51,30 @@ import interfaces.PieceLibrary;
 //@formatter:on
 public class Board {
 
-	private Integer[] board = new Integer[128];
+	final static Logger logger = Logger.getLogger(Board.class);
+
+	private Integer[] board;
 	private static final int[] A_FILE = { 112, 96, 80, 64, 48, 32, 16, 0 };
 	private static final int[] H_FILE = { 119, 103, 87, 71, 55, 39, 23, 7 };
 	private static final int RANK_LENGTH = 8;
+	private boolean whiteTurn;
+	private boolean whiteCanCastleKingSide;
+	private boolean whiteCanCastleQueenSide;
+	private boolean blackCanCastleKingSide;
+	private boolean blackCanCastleQueenSide;
 
 	public Board() {
+		init();
 		setupBoard();
+	}
+
+	private void init() {
+		board = new Integer[128];
+		whiteTurn = true;
+		whiteCanCastleKingSide = true;
+		whiteCanCastleQueenSide = true;
+		blackCanCastleKingSide = true;
+		blackCanCastleQueenSide = true;
 	}
 
 	private void setupBoard() {
@@ -90,6 +109,82 @@ public class Board {
 
 	public Integer[] getBoard() {
 		return board;
+	}
+
+	public void importFEN(String fen) {
+		if (fen == null) {
+			String message = "tried to import FEN and provide a null value instead of a FEN string.";
+			logger.error(message);
+			throw new IllegalStateException(message);
+		}
+		final int EXPECTED_FEN_TOKENS_COUNT = 6;
+		init();
+		String[] fenTokens = fen.split("\\s+");
+		if (fenTokens.length != EXPECTED_FEN_TOKENS_COUNT) {
+			String message = "FEN doesn't contain proper amount of fields, six fields required";
+			logger.error(message);
+			throw new IllegalStateException(message);
+		}
+		String[] rankPieceTokens = fenTokens[0].split("/");
+		if (rankPieceTokens.length != RANK_LENGTH) {
+			String message = "malformed FEN, perhaps not enough pieces specified in FEN.";
+			logger.error(message);
+			throw new IllegalStateException(message);
+		}
+		for (int i = 0; i < rankPieceTokens.length; i++) {
+			int boardIndex = A_FILE[i];
+			String rankPieces = rankPieceTokens[i].trim();
+			for (int j = 0; j < rankPieces.length(); j++) {
+				String rankPiece = String.valueOf(rankPieces.charAt(j));
+				if (Utilities.isInteger(rankPiece)) {
+					boardIndex += Integer.parseInt(rankPiece);
+				} else {
+					int piece = convertStringPieceToInteger(rankPiece);
+					board[boardIndex] = piece;
+					boardIndex++;
+				}
+			}
+		}
+		if (fenTokens[1].equals("w")) {
+			whiteTurn = true;
+		} else if (fenTokens[1].equals("b")) {
+			whiteTurn = false;
+		} else {
+			String message = "malformed FEN, perhaps players turn not specified correctly.";
+			logger.error(message);
+			throw new IllegalStateException(message);
+		}
+		
+		String castlingRights = fenTokens[2];
+		if (!castlingRights.contains("K")) {
+			whiteCanCastleKingSide = false;
+		} else if (!castlingRights.contains("Q")) {
+			whiteCanCastleQueenSide = false;
+		} else if (!castlingRights.contains("k")) {
+			blackCanCastleKingSide = false;
+		} else if (!castlingRights.contains("K")) {
+			blackCanCastleQueenSide = false;
+		}
+		
+		//TODO: use enpassant target square
+		String enPassantTargetSquare = fenTokens[3];
+		
+		if (Utilities.isInteger(fenTokens[4])) {
+			int halfMoveClock = Integer.parseInt(fenTokens[4]);
+			//TODO: use halfmove clock
+		} else {
+			String message = "malformed FEN, perhaps halfmove clock not specified correctly.";
+			logger.error(message);
+			throw new IllegalStateException(message);
+		}
+		if (Utilities.isInteger(fenTokens[5])) {
+			int fullMoveClock = Integer.parseInt(fenTokens[5]);	
+			//TODO: use fullmove clock
+		} else {
+			String message = "malformed FEN, perhaps fullmove clock not specified correctly.";
+			logger.error(message);
+			throw new IllegalStateException(message);
+		}
 	}
 
 	public void printBoardPieceIndexes() {
@@ -143,6 +238,38 @@ public class Board {
 			System.out.print(s);
 		}
 		System.out.println();
+	}
+
+	private int convertStringPieceToInteger(String piece) {
+		int result = 0;
+		if (piece.equals(PieceLibrary.WHITE_PAWN_STRING)) {
+			result = PieceLibrary.WHITE_PAWN;
+		} else if (piece.equals(PieceLibrary.WHITE_BISHOP_STRING)) {
+			result = PieceLibrary.WHITE_BISHOP;
+		} else if (piece.equals(PieceLibrary.WHITE_KING_STRING)) {
+			result = PieceLibrary.WHITE_KING;
+		} else if (piece.equals(PieceLibrary.WHITE_KNIGHT_STRING)) {
+			result = PieceLibrary.WHITE_KNIGHT;
+		} else if (piece.equals(PieceLibrary.WHITE_QUEEN_STRING)) {
+			result = PieceLibrary.WHITE_QUEEN;
+		} else if (piece.equals(PieceLibrary.WHITE_ROOK_STRING)) {
+			result = PieceLibrary.WHITE_ROOK;
+		} else if (piece.equals(PieceLibrary.BLACK_PAWN_STRING)) {
+			result = PieceLibrary.BLACK_PAWN;
+		} else if (piece.equals(PieceLibrary.BLACK_BISHOP_STRING)) {
+			result = PieceLibrary.BLACK_BISHOP;
+		} else if (piece.equals(PieceLibrary.BLACK_KING_STRING)) {
+			result = PieceLibrary.BLACK_KING;
+		} else if (piece.equals(PieceLibrary.BLACK_KNIGHT_STRING)) {
+			result = PieceLibrary.BLACK_KNIGHT;
+		} else if (piece.equals(PieceLibrary.BLACK_QUEEN_STRING)) {
+			result = PieceLibrary.BLACK_QUEEN;
+		} else if (piece.equals(PieceLibrary.BLACK_ROOK_STRING)) {
+			result = PieceLibrary.BLACK_ROOK;
+		} else {
+			throw new IllegalArgumentException("Tried to convert an undefined chess piece to a string.");
+		}
+		return result;
 	}
 
 	private String convertPieceToString(int piece) {
