@@ -1,6 +1,7 @@
 package model;
 
 import interfaces.PieceLibrary;
+
 //@formatter:off
 /**
  * 0x88 board
@@ -49,6 +50,9 @@ import interfaces.PieceLibrary;
 public class Board {
 
 	private Integer[] board = new Integer[128];
+	private static final int[] A_FILE = { 112, 96, 80, 64, 48, 32, 16, 0 };
+	private static final int[] H_FILE = { 119, 103, 87, 71, 55, 39, 23, 7 };
+	private static final int RANK_LENGTH = 8;
 
 	public Board() {
 		setupBoard();
@@ -63,9 +67,9 @@ public class Board {
 		board[5] = PieceLibrary.WHITE_BISHOP;
 		board[6] = PieceLibrary.WHITE_KNIGHT;
 		board[7] = PieceLibrary.WHITE_ROOK;
-		
-		for (int startPosition = 16; startPosition <= 23; startPosition++) {
-			board[startPosition] = PieceLibrary.WHITE_PAWN;
+
+		for (int i = A_FILE[6]; i <= H_FILE[6]; i++) {
+			board[i] = PieceLibrary.WHITE_PAWN;
 		}
 
 		board[112] = PieceLibrary.BLACK_ROOK;
@@ -76,9 +80,9 @@ public class Board {
 		board[117] = PieceLibrary.BLACK_BISHOP;
 		board[118] = PieceLibrary.BLACK_KNIGHT;
 		board[119] = PieceLibrary.BLACK_ROOK;
-		
-		for (int startPosition = 96; startPosition <= 103; startPosition++) {
-			board[startPosition] = PieceLibrary.BLACK_PAWN;
+
+		for (int i = A_FILE[1]; i <= H_FILE[1]; i++) {
+			board[i] = PieceLibrary.BLACK_PAWN;
 		}
 
 		System.out.println();
@@ -91,20 +95,15 @@ public class Board {
 	public void printBoardPieceIndexes() {
 		printHelper(false);
 	}
-	
+
 	public void print() {
 		printHelper(true);
 	}
-	
+
 	private void printHelper(boolean pretty) {
-		printRow(112, pretty);
-		printRow(96, pretty);
-		printRow(80, pretty);
-		printRow(64, pretty);
-		printRow(48, pretty);
-		printRow(32, pretty);
-		printRow(16, pretty);
-		printRow(0, pretty);
+		for (int i = 0; i < A_FILE.length; i++) {
+			printRow(A_FILE[i], pretty);
+		}
 	}
 
 	/**
@@ -115,47 +114,33 @@ public class Board {
 	 *            the index of the 0x88 board
 	 */
 	private void printRow(int startIndex, boolean pretty) {
-		Integer piece = board[startIndex++];
+		Integer piece = null;
 		String s = null;
-		if (piece == null) {
-			s = ". ";
-		} else if (pretty) {
-			s = convertPieceToString(piece);
-		} else {
-			s = piece.toString();
-		}
-		System.out.print(s);
-		
-		for(int i = 1; i < 7; i++, startIndex++) {
+		int totalRowLength = RANK_LENGTH * 2;
+		for (int i = 0; i < totalRowLength; i++, startIndex++) {
+			if (i == RANK_LENGTH) {
+				// fake board start
+				System.out.print("| ");
+			}
 			piece = board[startIndex];
-			if (piece == null) {
-				s = ". ";
-			} else if (pretty) {
-				s = " " + convertPieceToString(piece);
+			if (pretty) {
+				if (piece == null) {
+					s = ". ";
+				} else {
+					s = convertPieceToString(piece) + " ";
+				}
 			} else {
-				s = " " + piece;
+				if (piece == null) {
+					s = " . ";
+				} else {
+					if (piece < 10) {
+						s = " " + piece + " ";
+					} else {
+						s = piece + " ";
+					}
+				}
 			}
 			System.out.print(s);
-		}
-		
-		piece = board[startIndex++];
-		if (piece == null) {
-			s = ".";
-		} else if (pretty) {
-			s = " " + convertPieceToString(piece);
-		} else {
-			s = " " + piece;
-		}
-		System.out.print(s);
-		
-		// fake board side
-		System.out.print(" |");
-		for (int i = 0; i < 8; i++, startIndex++) {
-			if (pretty) {
-				System.out.print(" " + piece);
-			} else {
-				System.out.print(" " + startIndex);
-			}
 		}
 		System.out.println();
 	}
@@ -163,33 +148,32 @@ public class Board {
 	private String convertPieceToString(int piece) {
 		String result = null;
 		if (piece == PieceLibrary.WHITE_PAWN) {
-			result = "P";
+			result = PieceLibrary.WHITE_PAWN_STRING;
 		} else if (piece == PieceLibrary.WHITE_BISHOP) {
-			result = "B";
+			result = PieceLibrary.WHITE_BISHOP_STRING;
 		} else if (piece == PieceLibrary.WHITE_KING) {
-			result = "K";
+			result = PieceLibrary.WHITE_KING_STRING;
 		} else if (piece == PieceLibrary.WHITE_KNIGHT) {
-			result = "N";
+			result = PieceLibrary.WHITE_KNIGHT_STRING;
 		} else if (piece == PieceLibrary.WHITE_QUEEN) {
-			result = "Q";
+			result = PieceLibrary.WHITE_QUEEN_STRING;
 		} else if (piece == PieceLibrary.WHITE_ROOK) {
-			result = "R";
+			result = PieceLibrary.WHITE_ROOK_STRING;
 		} else if (piece == PieceLibrary.BLACK_PAWN) {
-			result = "p";
+			result = PieceLibrary.BLACK_PAWN_STRING;
 		} else if (piece == PieceLibrary.BLACK_BISHOP) {
-			result = "b";
+			result = PieceLibrary.BLACK_BISHOP_STRING;
 		} else if (piece == PieceLibrary.BLACK_KING) {
-			result = "k";
+			result = PieceLibrary.BLACK_KING_STRING;
 		} else if (piece == PieceLibrary.BLACK_KNIGHT) {
-			result = "n";
+			result = PieceLibrary.BLACK_KNIGHT_STRING;
 		} else if (piece == PieceLibrary.BLACK_QUEEN) {
-			result = "q";
+			result = PieceLibrary.BLACK_QUEEN_STRING;
 		} else if (piece == PieceLibrary.BLACK_ROOK) {
-			result = "r";
+			result = PieceLibrary.BLACK_ROOK_STRING;
 		} else {
 			throw new IllegalArgumentException("Tried to convert an undefined chess piece to a string.");
 		}
 		return result;
 	}
-
 }
