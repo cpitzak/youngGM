@@ -13,4 +13,8 @@ public interface UCICommands {
 	public static final String PONDER_HIT = "ponderhit";
 	public static final String QUIT = "quit";
 	
+	public static final String START_POS = "startpos";
+	public static final String MOVES = "moves";
+	public static final String FEN = "fen";
+	
 }

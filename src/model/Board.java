@@ -62,6 +62,7 @@ public class Board {
 	private boolean whiteCanCastleQueenSide;
 	private boolean blackCanCastleKingSide;
 	private boolean blackCanCastleQueenSide;
+	private String enPassantTargetSquare;
 
 	public Board() {
 		init();
@@ -75,6 +76,7 @@ public class Board {
 		whiteCanCastleQueenSide = true;
 		blackCanCastleKingSide = true;
 		blackCanCastleQueenSide = true;
+		enPassantTargetSquare = null;
 	}
 
 	private void setupBoard() {
@@ -110,81 +112,130 @@ public class Board {
 	public Integer[] getBoard() {
 		return board;
 	}
+	
+	public boolean isWhiteTurn() {
+		return whiteTurn;
+	}
+
+	public boolean isWhiteCanCastleKingSide() {
+		return whiteCanCastleKingSide;
+	}
+
+	public boolean isWhiteCanCastleQueenSide() {
+		return whiteCanCastleQueenSide;
+	}
+
+	public boolean isBlackCanCastleKingSide() {
+		return blackCanCastleKingSide;
+	}
+
+	public boolean isBlackCanCastleQueenSide() {
+		return blackCanCastleQueenSide;
+	}
 
 	public void importFEN(String fen) {
 		if (fen == null) {
-			String message = "tried to import FEN and provide a null value instead of a FEN string.";
-			logger.error(message);
-			throw new IllegalStateException(message);
+			logger.error("tried to import FEN and provide a null value instead of a FEN string."
+					+ " Doing nothing, check FEN and try again.");
+			return;
 		}
-		final int EXPECTED_FEN_TOKENS_COUNT = 6;
-		init();
-		String[] fenTokens = fen.split("\\s+");
-		if (fenTokens.length != EXPECTED_FEN_TOKENS_COUNT) {
-			String message = "FEN doesn't contain proper amount of fields, six fields required";
-			logger.error(message);
-			throw new IllegalStateException(message);
-		}
-		String[] rankPieceTokens = fenTokens[0].split("/");
-		if (rankPieceTokens.length != RANK_LENGTH) {
-			String message = "malformed FEN, perhaps not enough pieces specified in FEN.";
-			logger.error(message);
-			throw new IllegalStateException(message);
-		}
-		for (int i = 0; i < rankPieceTokens.length; i++) {
-			int boardIndex = A_FILE[i];
-			String rankPieces = rankPieceTokens[i].trim();
-			for (int j = 0; j < rankPieces.length(); j++) {
-				String rankPiece = String.valueOf(rankPieces.charAt(j));
-				if (Utilities.isInteger(rankPiece)) {
-					boardIndex += Integer.parseInt(rankPiece);
-				} else {
-					int piece = convertStringPieceToInteger(rankPiece);
-					board[boardIndex] = piece;
-					boardIndex++;
+		try {
+			final int EXPECTED_FEN_TOKENS_COUNT = 6;
+			init();
+			String[] fenTokens = fen.split("\\s+");
+			if (fenTokens.length != EXPECTED_FEN_TOKENS_COUNT) {
+				String message = "FEN doesn't contain proper amount of fields, six fields required";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
+			String[] rankPieceTokens = fenTokens[0].split("/");
+			if (rankPieceTokens.length != RANK_LENGTH) {
+				String message = "malformed FEN, perhaps not enough pieces specified in FEN.";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
+			for (int i = 0; i < rankPieceTokens.length; i++) {
+				int boardIndex = A_FILE[i];
+				String rankPieces = rankPieceTokens[i].trim();
+				for (int j = 0; j < rankPieces.length(); j++) {
+					String rankPiece = String.valueOf(rankPieces.charAt(j));
+					if (Utilities.isInteger(rankPiece)) {
+						boardIndex += Integer.parseInt(rankPiece);
+					} else {
+						int piece = convertStringPieceToInteger(rankPiece);
+						board[boardIndex] = piece;
+						boardIndex++;
+					}
 				}
 			}
+			if (fenTokens[1].equals("w")) {
+				whiteTurn = true;
+			} else if (fenTokens[1].equals("b")) {
+				whiteTurn = false;
+			} else {
+				String message = "malformed FEN, perhaps players turn not specified correctly.";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
+
+			String castlingRights = fenTokens[2];
+			if (!castlingRights.contains("K")) {
+				whiteCanCastleKingSide = false;
+			}
+			if (!castlingRights.contains("Q")) {
+				whiteCanCastleQueenSide = false;
+			}
+			if (!castlingRights.contains("k")) {
+				blackCanCastleKingSide = false;
+			}
+			if (!castlingRights.contains("q")) {
+				blackCanCastleQueenSide = false;
+			}
+			// else if (!castlingRights.matches(".*[KB].*")) {
+//				String message = "malformed FEN, perhaps castling rights specified correctly.";
+//				logger.error(message);
+//				throw new IllegalStateException(message);
+//			}
+
+			// TODO: regex to test if it is correct
+			enPassantTargetSquare = fenTokens[3];
+
+			if (Utilities.isInteger(fenTokens[4])) {
+				int halfMoveClock = Integer.parseInt(fenTokens[4]);
+				// TODO: use halfmove clock
+			} else {
+				String message = "malformed FEN, perhaps halfmove clock not specified correctly.";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
+			if (Utilities.isInteger(fenTokens[5])) {
+				int fullMoveClock = Integer.parseInt(fenTokens[5]);
+				// TODO: use fullmove clock
+			} else {
+				String message = "malformed FEN, perhaps fullmove clock not specified correctly.";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
+		} catch (IllegalStateException e) {
+			init();
+			logger.error("Caught exception in importFEN. Cleared board to avoid an illegal state.");
+		} catch (IllegalArgumentException e) {
+			init();
+			logger.error("Caught exception in importFEN. Cleared board to avoid an illegal state.");
 		}
-		if (fenTokens[1].equals("w")) {
-			whiteTurn = true;
-		} else if (fenTokens[1].equals("b")) {
-			whiteTurn = false;
-		} else {
-			String message = "malformed FEN, perhaps players turn not specified correctly.";
-			logger.error(message);
-			throw new IllegalStateException(message);
+	}
+	
+//	The move format is in long algebraic notation.
+//	A nullmove from the Engine to the GUI should be sent as 0000.
+//	Examples:  e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
+	public void makeMove(String move) {
+		final int MIN_MOVE_LENGTH = 4;
+		final int MAX_MOVE_LENGTH = 5;
+		if (move == null || move.trim().length() < MIN_MOVE_LENGTH || move.trim().length() > MAX_MOVE_LENGTH) {
+			logger.error("Invalid move sent to makeMove");
+			return;
 		}
-		
-		String castlingRights = fenTokens[2];
-		if (!castlingRights.contains("K")) {
-			whiteCanCastleKingSide = false;
-		} else if (!castlingRights.contains("Q")) {
-			whiteCanCastleQueenSide = false;
-		} else if (!castlingRights.contains("k")) {
-			blackCanCastleKingSide = false;
-		} else if (!castlingRights.contains("K")) {
-			blackCanCastleQueenSide = false;
-		}
-		
-		//TODO: use enpassant target square
-		String enPassantTargetSquare = fenTokens[3];
-		
-		if (Utilities.isInteger(fenTokens[4])) {
-			int halfMoveClock = Integer.parseInt(fenTokens[4]);
-			//TODO: use halfmove clock
-		} else {
-			String message = "malformed FEN, perhaps halfmove clock not specified correctly.";
-			logger.error(message);
-			throw new IllegalStateException(message);
-		}
-		if (Utilities.isInteger(fenTokens[5])) {
-			int fullMoveClock = Integer.parseInt(fenTokens[5]);	
-			//TODO: use fullmove clock
-		} else {
-			String message = "malformed FEN, perhaps fullmove clock not specified correctly.";
-			logger.error(message);
-			throw new IllegalStateException(message);
-		}
+		String[] tokens = move.trim().split("\\d", 2);
 	}
 
 	public void printBoardPieceIndexes() {
