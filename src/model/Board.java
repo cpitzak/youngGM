@@ -162,7 +162,7 @@ public class Board {
 					if (Utilities.isInteger(rankPiece)) {
 						boardIndex += Integer.parseInt(rankPiece);
 					} else {
-						int piece = convertStringPieceToInteger(rankPiece);
+						int piece = PieceLibrary.stringToIntMap.get(rankPiece);
 						board[boardIndex] = piece;
 						boardIndex++;
 					}
@@ -273,7 +273,7 @@ public class Board {
 				if (piece == null) {
 					s = ". ";
 				} else {
-					s = convertPieceToString(piece) + " ";
+					s = PieceLibrary.intToStringMap.get(piece) + " ";
 				}
 			} else {
 				if (piece == null) {
@@ -291,67 +291,4 @@ public class Board {
 		System.out.println();
 	}
 
-	private int convertStringPieceToInteger(String piece) {
-		int result = 0;
-		if (piece.equals(PieceLibrary.WHITE_PAWN_STRING)) {
-			result = PieceLibrary.WHITE_PAWN;
-		} else if (piece.equals(PieceLibrary.WHITE_BISHOP_STRING)) {
-			result = PieceLibrary.WHITE_BISHOP;
-		} else if (piece.equals(PieceLibrary.WHITE_KING_STRING)) {
-			result = PieceLibrary.WHITE_KING;
-		} else if (piece.equals(PieceLibrary.WHITE_KNIGHT_STRING)) {
-			result = PieceLibrary.WHITE_KNIGHT;
-		} else if (piece.equals(PieceLibrary.WHITE_QUEEN_STRING)) {
-			result = PieceLibrary.WHITE_QUEEN;
-		} else if (piece.equals(PieceLibrary.WHITE_ROOK_STRING)) {
-			result = PieceLibrary.WHITE_ROOK;
-		} else if (piece.equals(PieceLibrary.BLACK_PAWN_STRING)) {
-			result = PieceLibrary.BLACK_PAWN;
-		} else if (piece.equals(PieceLibrary.BLACK_BISHOP_STRING)) {
-			result = PieceLibrary.BLACK_BISHOP;
-		} else if (piece.equals(PieceLibrary.BLACK_KING_STRING)) {
-			result = PieceLibrary.BLACK_KING;
-		} else if (piece.equals(PieceLibrary.BLACK_KNIGHT_STRING)) {
-			result = PieceLibrary.BLACK_KNIGHT;
-		} else if (piece.equals(PieceLibrary.BLACK_QUEEN_STRING)) {
-			result = PieceLibrary.BLACK_QUEEN;
-		} else if (piece.equals(PieceLibrary.BLACK_ROOK_STRING)) {
-			result = PieceLibrary.BLACK_ROOK;
-		} else {
-			throw new IllegalArgumentException("Tried to convert an undefined chess piece to a string.");
-		}
-		return result;
-	}
-
-	private String convertPieceToString(int piece) {
-		String result = null;
-		if (piece == PieceLibrary.WHITE_PAWN) {
-			result = PieceLibrary.WHITE_PAWN_STRING;
-		} else if (piece == PieceLibrary.WHITE_BISHOP) {
-			result = PieceLibrary.WHITE_BISHOP_STRING;
-		} else if (piece == PieceLibrary.WHITE_KING) {
-			result = PieceLibrary.WHITE_KING_STRING;
-		} else if (piece == PieceLibrary.WHITE_KNIGHT) {
-			result = PieceLibrary.WHITE_KNIGHT_STRING;
-		} else if (piece == PieceLibrary.WHITE_QUEEN) {
-			result = PieceLibrary.WHITE_QUEEN_STRING;
-		} else if (piece == PieceLibrary.WHITE_ROOK) {
-			result = PieceLibrary.WHITE_ROOK_STRING;
-		} else if (piece == PieceLibrary.BLACK_PAWN) {
-			result = PieceLibrary.BLACK_PAWN_STRING;
-		} else if (piece == PieceLibrary.BLACK_BISHOP) {
-			result = PieceLibrary.BLACK_BISHOP_STRING;
-		} else if (piece == PieceLibrary.BLACK_KING) {
-			result = PieceLibrary.BLACK_KING_STRING;
-		} else if (piece == PieceLibrary.BLACK_KNIGHT) {
-			result = PieceLibrary.BLACK_KNIGHT_STRING;
-		} else if (piece == PieceLibrary.BLACK_QUEEN) {
-			result = PieceLibrary.BLACK_QUEEN_STRING;
-		} else if (piece == PieceLibrary.BLACK_ROOK) {
-			result = PieceLibrary.BLACK_ROOK_STRING;
-		} else {
-			throw new IllegalArgumentException("Tried to convert an undefined chess piece to a string.");
-		}
-		return result;
-	}
 }
