@@ -312,4 +312,22 @@ public class BoardTest {
 		assertThat(result, is(false));
 	}
 	
+	@Test
+	public void importFENHalfMoveClockTest() {
+		boolean result = false;
+		Board board = new Board();
+		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq e3 1 2");
+		assertThat(board.getHalfMoveClock(), is(1));
+		assertThat(result, is(true));
+	}
+	
+	@Test
+	public void importFENfullMoveClockTest() {
+		boolean result = false;
+		Board board = new Board();
+		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq e3 0 2");
+		assertThat(board.getFullMoveClock(), is(2));
+		assertThat(result, is(true));
+	}
+	
 }
