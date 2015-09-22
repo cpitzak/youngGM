@@ -2,6 +2,7 @@ package model;
 
 import interfaces.PieceLibrary;
 
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,9 +11,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 
 public class BoardTest {
+	
+	@Before
+	public void setup() {
+		BasicConfigurator.configure();
+	}
 
 	@Test
-	public void setup() {
+	public void setupBoardTest() {
 		Board board = new Board();
 		Integer[] intBoard = board.getBoard();
 
@@ -114,37 +120,46 @@ public class BoardTest {
 
 	@Test
 	public void importFENCastlingRightsTest() {
+		boolean result = false;
 		Board board = new Board();
 
-		board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		assertThat(board.isWhiteCanCastleKingSide(), is(true));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(true));
 		assertThat(board.isBlackCanCastleKingSide(), is(true));
 		assertThat(board.isBlackCanCastleQueenSide(), is(true));
+		assertThat(result, is(true));
 
-		board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Qkq - 0 1");
+		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Qkq - 0 1");
 		assertThat(board.isWhiteCanCastleKingSide(), is(false));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(true));
 		assertThat(board.isBlackCanCastleKingSide(), is(true));
 		assertThat(board.isBlackCanCastleQueenSide(), is(true));
+		assertThat(result, is(true));
 
-		board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w kq - 0 1");
+		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w kq - 0 1");
 		assertThat(board.isWhiteCanCastleKingSide(), is(false));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(false));
 		assertThat(board.isBlackCanCastleKingSide(), is(true));
 		assertThat(board.isBlackCanCastleQueenSide(), is(true));
+		assertThat(result, is(true));
 
-		board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w q - 0 1");
+		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w q - 0 1");
 		assertThat(board.isWhiteCanCastleKingSide(), is(false));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(false));
 		assertThat(board.isBlackCanCastleKingSide(), is(false));
 		assertThat(board.isBlackCanCastleQueenSide(), is(true));
+		assertThat(result, is(true));
 
-		board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1");
+		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1");
 		assertThat(board.isWhiteCanCastleKingSide(), is(false));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(false));
 		assertThat(board.isBlackCanCastleKingSide(), is(false));
 		assertThat(board.isBlackCanCastleQueenSide(), is(false));
+		assertThat(result, is(true));
+		
+		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w a - 0 1");
+		assertThat(result, is(false));
 	}
 
 	@Test
@@ -279,5 +294,22 @@ public class BoardTest {
 			assertThat(intBoard[i], nullValue());
 		}
 	}
-
+	
+	@Test
+	public void importFENEnPassantTargetSquareTest() {
+		boolean result = false;
+		Board board = new Board();
+		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq e3 0 1");
+		assertThat(board.getEnPassantTargetSquare(), is("e3"));
+		assertThat(result, is(true));
+		
+		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq - 0 1");
+		assertThat(board.getEnPassantTargetSquare(), is(nullValue()));
+		assertThat(result, is(true));
+		
+		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq a 0 1");
+		assertThat(board.getEnPassantTargetSquare(), is(nullValue()));
+		assertThat(result, is(false));
+	}
+	
 }

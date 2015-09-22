@@ -1,8 +1,13 @@
 package model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.log4j.Logger;
 
 import interfaces.PieceLibrary;
+import interfaces.SquareLibrary;
+import interfaces.UCICommands;
 
 //@formatter:off
 /**
@@ -63,6 +68,8 @@ public class Board {
 	private boolean blackCanCastleKingSide;
 	private boolean blackCanCastleQueenSide;
 	private String enPassantTargetSquare;
+	private int halfMoveClock;
+	private int fullMoveClock;
 
 	public Board() {
 		init();
@@ -113,6 +120,18 @@ public class Board {
 		return board;
 	}
 	
+	public int getHalfMoveClock() {
+		return halfMoveClock;
+	}
+	
+	public int getFullMoveClock() {
+		return fullMoveClock;
+	}
+	
+	public String getEnPassantTargetSquare() {
+		return enPassantTargetSquare;
+	}
+
 	public boolean isWhiteTurn() {
 		return whiteTurn;
 	}
@@ -133,11 +152,11 @@ public class Board {
 		return blackCanCastleQueenSide;
 	}
 
-	public void importFEN(String fen) {
+	public boolean importFEN(String fen) {
 		if (fen == null) {
 			logger.error("tried to import FEN and provide a null value instead of a FEN string."
 					+ " Doing nothing, check FEN and try again.");
-			return;
+			return false;
 		}
 		try {
 			final int EXPECTED_FEN_TOKENS_COUNT = 6;
@@ -162,7 +181,12 @@ public class Board {
 					if (Utilities.isInteger(rankPiece)) {
 						boardIndex += Integer.parseInt(rankPiece);
 					} else {
-						int piece = PieceLibrary.stringToIntMap.get(rankPiece);
+						Integer piece = PieceLibrary.stringToIntMap.get(rankPiece);
+						if (piece == null) {
+							String message = "malformed FEN, piece not specified correctly.";
+							logger.error(message);
+							throw new IllegalStateException(message);
+						}
 						board[boardIndex] = piece;
 						boardIndex++;
 					}
@@ -178,7 +202,15 @@ public class Board {
 				throw new IllegalStateException(message);
 			}
 
+			final int MAX_CASTLING_RIGHTS_LENGTH = 4;
 			String castlingRights = fenTokens[2];
+			Pattern p = Pattern.compile("[QKqk-]");
+			Matcher m = p.matcher(castlingRights);
+			if (castlingRights.length() > MAX_CASTLING_RIGHTS_LENGTH ||  !m.find()) {
+				String message = "malformed FEN, perhaps castling rights not specified correctly.";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
 			if (!castlingRights.contains("K")) {
 				whiteCanCastleKingSide = false;
 			}
@@ -191,26 +223,26 @@ public class Board {
 			if (!castlingRights.contains("q")) {
 				blackCanCastleQueenSide = false;
 			}
-			// else if (!castlingRights.matches(".*[KB].*")) {
-//				String message = "malformed FEN, perhaps castling rights specified correctly.";
-//				logger.error(message);
-//				throw new IllegalStateException(message);
-//			}
 
-			// TODO: regex to test if it is correct
-			enPassantTargetSquare = fenTokens[3];
+			if (!fenTokens[3].equals("-") && SquareLibrary.stringToIntMap.get(fenTokens[3]) == null) {
+				String message = "malformed FEN, perhaps enpassant target square not specified correctly.";
+				logger.error(message);
+				throw new IllegalStateException(message);
+			}
+			
+			if (!fenTokens[3].equals("-")) {
+				enPassantTargetSquare = fenTokens[3];
+			}
 
 			if (Utilities.isInteger(fenTokens[4])) {
-				int halfMoveClock = Integer.parseInt(fenTokens[4]);
-				// TODO: use halfmove clock
+				halfMoveClock = Integer.parseInt(fenTokens[4]);
 			} else {
 				String message = "malformed FEN, perhaps halfmove clock not specified correctly.";
 				logger.error(message);
 				throw new IllegalStateException(message);
 			}
 			if (Utilities.isInteger(fenTokens[5])) {
-				int fullMoveClock = Integer.parseInt(fenTokens[5]);
-				// TODO: use fullmove clock
+				fullMoveClock = Integer.parseInt(fenTokens[5]);
 			} else {
 				String message = "malformed FEN, perhaps fullmove clock not specified correctly.";
 				logger.error(message);
@@ -219,16 +251,20 @@ public class Board {
 		} catch (IllegalStateException e) {
 			init();
 			logger.error("Caught exception in importFEN. Cleared board to avoid an illegal state.");
+			return false;
 		} catch (IllegalArgumentException e) {
 			init();
 			logger.error("Caught exception in importFEN. Cleared board to avoid an illegal state.");
+			return false;
 		}
+		return true;
 	}
-	
-//	The move format is in long algebraic notation.
-//	A nullmove from the Engine to the GUI should be sent as 0000.
-//	Examples:  e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
+
+	// The move format is in long algebraic notation.
+	// A nullmove from the Engine to the GUI should be sent as 0000.
+	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 	public void makeMove(String move) {
+		logger.warn("move is not yet implemented");
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
 		if (move == null || move.trim().length() < MIN_MOVE_LENGTH || move.trim().length() > MAX_MOVE_LENGTH) {
@@ -236,6 +272,21 @@ public class Board {
 			return;
 		}
 		String[] tokens = move.trim().split("\\d", 2);
+		String tempSquare1 = tokens[0].trim().toLowerCase();
+		String tempSquare2 = tokens[1].trim().toLowerCase();
+		// TODO: check if moves are guaranteed to be lowercase
+		Integer squareFromInt = SquareLibrary.stringToIntMap.get(tempSquare1);
+		Integer squareToInt = null;
+		if (tempSquare2.length() == 3) {
+			// promotion
+			int promotionPiece = PieceLibrary.stringToIntMap.get(tempSquare2.substring(2));
+			squareToInt = SquareLibrary.stringToIntMap.get(tempSquare2.substring(0, 2));
+		} else if (tempSquare2.length() == 2) {
+			squareToInt = SquareLibrary.stringToIntMap.get(tempSquare2);
+		} else {
+			throw new IllegalArgumentException(
+					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+		}
 	}
 
 	public void printBoardPieceIndexes() {

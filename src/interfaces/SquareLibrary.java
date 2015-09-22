@@ -1,5 +1,9 @@
 package interfaces;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public interface SquareLibrary {
 
 	//@formatter:off
@@ -88,13 +92,13 @@ public interface SquareLibrary {
 	public static final int H6 = 87;
 	public static final int H7 = 103;
 	public static final int H8 = 119;
-	
-//	String[] vals = {"A", "A", "B", "C", "D", "E", "F", "G", "H"};
-//    for (int n = 1, j = 0; n <= 8; n++, j++ )
-//       for (int i = 1, tempJ = j; i <= 8; i++, tempJ+=16){
-//           System.out.println("public static final String "+vals[n] + i + "_STRING"
-//           + " = \""+vals[n].toLowerCase()+i+"\";");
-//       }
+
+	// String[] vals = {"A", "A", "B", "C", "D", "E", "F", "G", "H"};
+	// for (int n = 1, j = 0; n <= 8; n++, j++ )
+	// for (int i = 1, tempJ = j; i <= 8; i++, tempJ+=16){
+	// System.out.println("public static final String "+vals[n] + i + "_STRING"
+	// + " = \""+vals[n].toLowerCase()+i+"\";");
+	// }
 
 	public static final String A1_STRING = "a1";
 	public static final String A2_STRING = "a2";
@@ -160,5 +164,146 @@ public interface SquareLibrary {
 	public static final String H6_STRING = "h6";
 	public static final String H7_STRING = "h7";
 	public static final String H8_STRING = "h8";
+
+	public static final Map<Integer, String> intToStringMap = Collections
+			.unmodifiableMap(new HashMap<Integer, String>() {
+				private static final long serialVersionUID = 1L;
+				{
+					put(A1, A1_STRING);
+					put(A2, A2_STRING);
+					put(A3, A3_STRING);
+					put(A4, A4_STRING);
+					put(A5, A5_STRING);
+					put(A6, A6_STRING);
+					put(A7, A7_STRING);
+					put(A8, A8_STRING);
+					put(B1, B1_STRING);
+					put(B2, B2_STRING);
+					put(B3, B3_STRING);
+					put(B4, B4_STRING);
+					put(B5, B5_STRING);
+					put(B6, B6_STRING);
+					put(B7, B7_STRING);
+					put(B8, B8_STRING);
+					put(C1, C1_STRING);
+					put(C2, C2_STRING);
+					put(C3, C3_STRING);
+					put(C4, C4_STRING);
+					put(C5, C5_STRING);
+					put(C6, C6_STRING);
+					put(C7, C7_STRING);
+					put(C8, C8_STRING);
+					put(D1, D1_STRING);
+					put(D2, D2_STRING);
+					put(D3, D3_STRING);
+					put(D4, D4_STRING);
+					put(D5, D5_STRING);
+					put(D6, D6_STRING);
+					put(D7, D7_STRING);
+					put(D8, D8_STRING);
+					put(E1, E1_STRING);
+					put(E2, E2_STRING);
+					put(E3, E3_STRING);
+					put(E4, E4_STRING);
+					put(E5, E5_STRING);
+					put(E6, E6_STRING);
+					put(E7, E7_STRING);
+					put(E8, E8_STRING);
+					put(F1, F1_STRING);
+					put(F2, F2_STRING);
+					put(F3, F3_STRING);
+					put(F4, F4_STRING);
+					put(F5, F5_STRING);
+					put(F6, F6_STRING);
+					put(F7, F7_STRING);
+					put(F8, F8_STRING);
+					put(G1, G1_STRING);
+					put(G2, G2_STRING);
+					put(G3, G3_STRING);
+					put(G4, G4_STRING);
+					put(G5, G5_STRING);
+					put(G6, G6_STRING);
+					put(G7, G7_STRING);
+					put(G8, G8_STRING);
+					put(H1, H1_STRING);
+					put(H2, H2_STRING);
+					put(H3, H3_STRING);
+					put(H4, H4_STRING);
+					put(H5, H5_STRING);
+					put(H6, H6_STRING);
+					put(H7, H7_STRING);
+					put(H8, H8_STRING);
+				}
+			});
+	public static final Map<String, Integer> stringToIntMap = Collections
+			.unmodifiableMap(new HashMap<String, Integer>() {
+				private static final long serialVersionUID = 1L;
+				{
+					put(A1_STRING, A1);
+					put(A2_STRING, A2);
+					put(A3_STRING, A3);
+					put(A4_STRING, A4);
+					put(A5_STRING, A5);
+					put(A6_STRING, A6);
+					put(A7_STRING, A7);
+					put(A8_STRING, A8);
+					put(B1_STRING, B1);
+					put(B2_STRING, B2);
+					put(B3_STRING, B3);
+					put(B4_STRING, B4);
+					put(B5_STRING, B5);
+					put(B6_STRING, B6);
+					put(B7_STRING, B7);
+					put(B8_STRING, B8);
+					put(C1_STRING, C1);
+					put(C2_STRING, C2);
+					put(C3_STRING, C3);
+					put(C4_STRING, C4);
+					put(C5_STRING, C5);
+					put(C6_STRING, C6);
+					put(C7_STRING, C7);
+					put(C8_STRING, C8);
+					put(D1_STRING, D1);
+					put(D2_STRING, D2);
+					put(D3_STRING, D3);
+					put(D4_STRING, D4);
+					put(D5_STRING, D5);
+					put(D6_STRING, D6);
+					put(D7_STRING, D7);
+					put(D8_STRING, D8);
+					put(E1_STRING, E1);
+					put(E2_STRING, E2);
+					put(E3_STRING, E3);
+					put(E4_STRING, E4);
+					put(E5_STRING, E5);
+					put(E6_STRING, E6);
+					put(E7_STRING, E7);
+					put(E8_STRING, E8);
+					put(F1_STRING, F1);
+					put(F2_STRING, F2);
+					put(F3_STRING, F3);
+					put(F4_STRING, F4);
+					put(F5_STRING, F5);
+					put(F6_STRING, F6);
+					put(F7_STRING, F7);
+					put(F8_STRING, F8);
+					put(G1_STRING, G1);
+					put(G2_STRING, G2);
+					put(G3_STRING, G3);
+					put(G4_STRING, G4);
+					put(G5_STRING, G5);
+					put(G6_STRING, G6);
+					put(G7_STRING, G7);
+					put(G8_STRING, G8);
+					put(H1_STRING, H1);
+					put(H2_STRING, H2);
+					put(H3_STRING, H3);
+					put(H4_STRING, H4);
+					put(H5_STRING, H5);
+					put(H6_STRING, H6);
+					put(H7_STRING, H7);
+					put(H8_STRING, H8);
+				}
+			});
 
 }
