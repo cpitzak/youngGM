@@ -56,7 +56,7 @@ import interfaces.UCICommands;
 //@formatter:on
 public class Board {
 
-	final static Logger logger = Logger.getLogger(Board.class);
+	private final static Logger logger = Logger.getLogger(Board.class);
 
 	private Integer[] board;
 	private static final int[] A_FILE = { 112, 96, 80, 64, 48, 32, 16, 0 };
@@ -119,15 +119,15 @@ public class Board {
 	public Integer[] getBoard() {
 		return board;
 	}
-	
+
 	public int getHalfMoveClock() {
 		return halfMoveClock;
 	}
-	
+
 	public int getFullMoveClock() {
 		return fullMoveClock;
 	}
-	
+
 	public String getEnPassantTargetSquare() {
 		return enPassantTargetSquare;
 	}
@@ -206,7 +206,7 @@ public class Board {
 			String castlingRights = fenTokens[2];
 			Pattern p = Pattern.compile("[QKqk-]");
 			Matcher m = p.matcher(castlingRights);
-			if (castlingRights.length() > MAX_CASTLING_RIGHTS_LENGTH ||  !m.find()) {
+			if (castlingRights.length() > MAX_CASTLING_RIGHTS_LENGTH || !m.find()) {
 				String message = "malformed FEN, perhaps castling rights not specified correctly.";
 				logger.error(message);
 				throw new IllegalStateException(message);
@@ -229,7 +229,7 @@ public class Board {
 				logger.error(message);
 				throw new IllegalStateException(message);
 			}
-			
+
 			if (!fenTokens[3].equals("-")) {
 				enPassantTargetSquare = fenTokens[3];
 			}
@@ -340,6 +340,18 @@ public class Board {
 			System.out.print(s);
 		}
 		System.out.println();
+	}
+
+	public void print088Definition() {
+		String board088 = "112 113 114 115 116 117 118 119 | 120 121 122 123 124 125 126 127\n"
+				+ "96  97  98  99 100 101 102 103 | 104 105 106 107 108 109 110 111\n"
+				+ "80  81  82  83  84  85  86  87 |  88  89  90  91  92  93  94  95\n"
+				+ "64  65  66  67  68  69  70  71 |  72  73  74  75  76  77  78  79\n"
+				+ "48  49  50  51  52  53  54  55 |  56  57  58  59  60  61  62  63\n"
+				+ "32  33  34  35  36  37  38  39 |  40  41  42  43  44  45  46  47\n"
+				+ "16  17  18  19  20  21  22  23 |  24  25  26  27  28  29  30  31\n"
+				+ "0   1   2   3   4   5   6   7 |   8   9  10  11  12  13  14  15";
+		System.out.println(board088);
 	}
 
 }

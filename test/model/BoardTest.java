@@ -3,6 +3,7 @@ package model;
 import interfaces.PieceLibrary;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +12,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 
 public class BoardTest {
+	
+	private final static Logger logger = Logger.getLogger(BoardTest.class);
 	
 	@Before
 	public void setup() {
@@ -157,11 +160,18 @@ public class BoardTest {
 		assertThat(board.isBlackCanCastleKingSide(), is(false));
 		assertThat(board.isBlackCanCastleQueenSide(), is(false));
 		assertThat(result, is(true));
-		
+	}
+	
+	@Test
+	public void importFENCastlingRightsERRORTest() {
+		boolean result = false;
+		Board board = new Board();
+		logger.error("------------- Begin: Should cause ERROR ----------------------");
 		result = board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w a - 0 1");
+		logger.error("------------- End: Should cause ERROR ----------------------");
 		assertThat(result, is(false));
 	}
-
+	
 	@Test
 	public void importFENMoveTest1() {
 		// 1. e4
@@ -284,6 +294,17 @@ public class BoardTest {
 		assertThat(intBoard[102], is(PieceLibrary.BLACK_PAWN));
 		assertThat(intBoard[103], is(PieceLibrary.BLACK_PAWN));
 	}
+	
+	@Test
+	public void importFENMoveTest3() {
+		Board board = new Board();
+		board.importFEN("7K/8/k1P5/7p/8/8/8/8 b - - 0 45");
+		Integer[] intBoard = board.getBoard();
+		assertThat(intBoard[80], is(PieceLibrary.BLACK_KING));
+		assertThat(intBoard[80], is(PieceLibrary.BLACK_KING));
+		assertThat(intBoard[119], is(PieceLibrary.WHITE_KING));
+		assertThat(intBoard[71], is(PieceLibrary.BLACK_PAWN));
+	}
 
 	@Test
 	public void importFENBlankBoardTest() {
@@ -306,8 +327,15 @@ public class BoardTest {
 		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq - 0 1");
 		assertThat(board.getEnPassantTargetSquare(), is(nullValue()));
 		assertThat(result, is(true));
-		
+	}
+	
+	@Test
+	public void importFENEnPassantTargetSquareERRORTest() {
+		boolean result = false;
+		Board board = new Board();
+		logger.error("------------- Begin: Should cause ERROR ----------------------");
 		result = board.importFEN("8/8/8/8/8/8/8/8 b KQkq a 0 1");
+		logger.error("------------- End: Should cause ERROR ----------------------");
 		assertThat(board.getEnPassantTargetSquare(), is(nullValue()));
 		assertThat(result, is(false));
 	}
