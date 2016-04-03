@@ -264,25 +264,40 @@ public class Board {
 	// A nullmove from the Engine to the GUI should be sent as 0000.
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 	public void makeMove(String move) {
-		logger.warn("move is not yet implemented");
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
 		if (move == null || move.trim().length() < MIN_MOVE_LENGTH || move.trim().length() > MAX_MOVE_LENGTH) {
 			logger.error("Invalid move sent to makeMove");
 			return;
 		}
-		String[] tokens = move.trim().split("\\d", 2);
-		String tempSquare1 = tokens[0].trim().toLowerCase();
-		String tempSquare2 = tokens[1].trim().toLowerCase();
-		// TODO: check if moves are guaranteed to be lowercase
-		Integer squareFromInt = SquareLibrary.stringToIntMap.get(tempSquare1);
-		Integer squareToInt = null;
-		if (tempSquare2.length() == 3) {
+		move = move.trim();
+		if (move.length() != 4 && move.length() != 5) {
+			throw new IllegalArgumentException(
+					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+		}
+		String promotion = null;
+		if (move.length() == 5) {
+			promotion = move.substring(4);
+		}
+		String fromSquare = move.substring(0, 2).toLowerCase();
+		String toSquare = move.substring(2, 4).trim().toLowerCase();
+		Integer squareFromInt = SquareLibrary.stringToIntMap.get(fromSquare);
+		if (promotion != null) {
 			// promotion
-			int promotionPiece = PieceLibrary.stringToIntMap.get(tempSquare2.substring(2));
-			squareToInt = SquareLibrary.stringToIntMap.get(tempSquare2.substring(0, 2));
-		} else if (tempSquare2.length() == 2) {
-			squareToInt = SquareLibrary.stringToIntMap.get(tempSquare2);
+			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
+			Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
+			if (promotionPiece == null || squareToInt == null || squareFromInt == null) {
+				throw new IllegalArgumentException("malformed move");
+			}
+			board[squareToInt] = promotionPiece;
+			board[squareFromInt] = null;
+		} else if (toSquare.length() == 2) {
+			Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
+			if (squareFromInt == null || squareToInt == null) {
+				throw new IllegalArgumentException("malformed move");
+			}
+			board[squareToInt] = board[squareFromInt];
+			board[squareFromInt] = null;
 		} else {
 			throw new IllegalArgumentException(
 					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
