@@ -66,12 +66,19 @@ public class ChessGUI implements Observer, ActionListener {
 	private static final String ROOK_WHITE = "ROOK_WHITE";
 	private static final String KNIGHT_WHITE = "KNIGHT_WHITE";
 	private static final String BISHOP_WHITE = "BISHOP_WHITE";
-	
+
 	private static final String WHITE_STRING = "WHITE";
 	private static final String BLACK_STRING = "BLACK";
+	private String algebraicMove = "";
 
 	private JButton fromPieceButton;
 	private ImageIcon transparentIcon;
+
+	private String[][] algebraicNotation = new String[][] { { "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" },
+			{ "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7" }, { "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6" },
+			{ "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5" }, { "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4" },
+			{ "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3" }, { "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2" },
+			{ "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1" } };
 
 	public ChessGUI() {
 		initializeGui();
@@ -307,8 +314,8 @@ public class ChessGUI implements Observer, ActionListener {
 		String toDescription = icon.getDescription();
 		ImageIcon fromIcon = (ImageIcon) fromPieceButton.getIcon();
 		String fromDescription = fromIcon.getDescription();
-		if ((toDescription.contains(WHITE_STRING) && fromDescription.contains(WHITE_STRING)) ||
-				(toDescription.contains(BLACK_STRING) && fromDescription.contains(BLACK_STRING))) {
+		if ((toDescription.contains(WHITE_STRING) && fromDescription.contains(WHITE_STRING))
+				|| (toDescription.contains(BLACK_STRING) && fromDescription.contains(BLACK_STRING))) {
 			return false;
 		}
 		return true;
@@ -341,24 +348,35 @@ public class ChessGUI implements Observer, ActionListener {
 		}
 	}
 
+	// TODO: pawn promotion in long algebraic format
 	private boolean makeMove(JButton toPieceButton, int row, int col) {
 		boolean didSelect = false;
-		ImageIcon icon = (ImageIcon) toPieceButton.getIcon();
+		ImageIcon toIcon = (ImageIcon) toPieceButton.getIcon();
 		boolean isValidMove = isValidMove(row, col, toPieceButton);
 		if (fromPieceButton != null) {
+			// get to piece
 			if (fromPieceButton == toPieceButton) {
 				fromPieceButton = null;
 				didSelect = true;
-			} else if (isValidMove){
+			} else if (isValidMove) {
+				if (!toIcon.getDescription().isEmpty()) {
+					algebraicMove += "x" + algebraicNotation[col][row];
+				} else {
+					algebraicMove += "-" + algebraicNotation[col][row];
+				}
+				System.out.println("move: " + algebraicMove);
 				toPieceButton.setIcon(fromPieceButton.getIcon());
 				fromPieceButton.setIcon(transparentIcon);
 				fromPieceButton = null;
+				algebraicMove = "";
 				didSelect = true;
 			} else {
 				fromPieceButton = null;
+				algebraicMove = "";
 			}
 		} else {
-			String description = icon.getDescription();
+			// get from piece
+			String description = toIcon.getDescription();
 			if (!description.isEmpty()) {
 				if (description.equals(PAWN_BLACK)) {
 					System.out.println(PAWN_BLACK);
@@ -367,22 +385,27 @@ public class ChessGUI implements Observer, ActionListener {
 				} else if (description.equals(QUEEN_BLACK)) {
 					System.out.println(QUEEN_BLACK);
 					setFromPiece(toPieceButton);
+					algebraicMove += "Q";
 					didSelect = true;
 				} else if (description.equals(KING_BLACK)) {
 					System.out.println(KING_BLACK);
 					setFromPiece(toPieceButton);
+					algebraicMove += "K";
 					didSelect = true;
 				} else if (description.equals(ROOK_BLACK)) {
 					System.out.println(ROOK_BLACK);
 					setFromPiece(toPieceButton);
+					algebraicMove += "R";
 					didSelect = true;
 				} else if (description.equals(BISHOP_BLACK)) {
 					System.out.println(BISHOP_BLACK);
 					setFromPiece(toPieceButton);
+					algebraicMove += "B";
 					didSelect = true;
 				} else if (description.equals(KNIGHT_BLACK)) {
 					System.out.println(KNIGHT_BLACK);
 					setFromPiece(toPieceButton);
+					algebraicMove += "N";
 					didSelect = true;
 				} else if (description.equals(PAWN_WHITE)) {
 					System.out.println(PAWN_WHITE);
@@ -391,24 +414,30 @@ public class ChessGUI implements Observer, ActionListener {
 				} else if (description.equals(QUEEN_WHITE)) {
 					System.out.println(QUEEN_WHITE);
 					setFromPiece(toPieceButton);
+					algebraicMove += "Q";
 					didSelect = true;
 				} else if (description.equals(KING_WHITE)) {
 					System.out.println(KING_WHITE);
 					setFromPiece(toPieceButton);
+					algebraicMove += "K";
 					didSelect = true;
 				} else if (description.equals(ROOK_WHITE)) {
 					System.out.println(ROOK_WHITE);
 					setFromPiece(toPieceButton);
+					algebraicMove += "R";
 					didSelect = true;
 				} else if (description.equals(BISHOP_WHITE)) {
 					System.out.println(BISHOP_WHITE);
 					setFromPiece(toPieceButton);
+					algebraicMove += "B";
 					didSelect = true;
 				} else if (description.equals(KNIGHT_WHITE)) {
 					System.out.println(KNIGHT_WHITE);
 					setFromPiece(toPieceButton);
+					algebraicMove += "N";
 					didSelect = true;
 				}
+				algebraicMove += algebraicNotation[col][row];
 			}
 		}
 		return didSelect;

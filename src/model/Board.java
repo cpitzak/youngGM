@@ -276,6 +276,7 @@ public class Board extends Observable {
 	// The move format is in long algebraic notation.
 	// A nullmove from the Engine to the GUI should be sent as 0000.
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
+	//	https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long Algebraic Notation (LAN)
 	public void makeMove(String move) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
