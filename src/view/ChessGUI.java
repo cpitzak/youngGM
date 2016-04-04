@@ -359,14 +359,11 @@ public class ChessGUI implements Observer, ActionListener {
 				fromPieceButton = null;
 				didSelect = true;
 			} else if (isValidMove) {
-				if (!toIcon.getDescription().isEmpty()) {
-					algebraicMove += "x" + algebraicNotation[col][row];
-				} else {
-					algebraicMove += "-" + algebraicNotation[col][row];
-				}
+				algebraicMove += algebraicNotation[col][row];
 				System.out.println("move: " + algebraicMove);
 				toPieceButton.setIcon(fromPieceButton.getIcon());
 				fromPieceButton.setIcon(transparentIcon);
+				controller.makeMove(algebraicMove);
 				fromPieceButton = null;
 				algebraicMove = "";
 				didSelect = true;
@@ -385,27 +382,22 @@ public class ChessGUI implements Observer, ActionListener {
 				} else if (description.equals(QUEEN_BLACK)) {
 					System.out.println(QUEEN_BLACK);
 					setFromPiece(toPieceButton);
-					algebraicMove += "Q";
 					didSelect = true;
 				} else if (description.equals(KING_BLACK)) {
 					System.out.println(KING_BLACK);
 					setFromPiece(toPieceButton);
-					algebraicMove += "K";
 					didSelect = true;
 				} else if (description.equals(ROOK_BLACK)) {
 					System.out.println(ROOK_BLACK);
 					setFromPiece(toPieceButton);
-					algebraicMove += "R";
 					didSelect = true;
 				} else if (description.equals(BISHOP_BLACK)) {
 					System.out.println(BISHOP_BLACK);
 					setFromPiece(toPieceButton);
-					algebraicMove += "B";
 					didSelect = true;
 				} else if (description.equals(KNIGHT_BLACK)) {
 					System.out.println(KNIGHT_BLACK);
 					setFromPiece(toPieceButton);
-					algebraicMove += "N";
 					didSelect = true;
 				} else if (description.equals(PAWN_WHITE)) {
 					System.out.println(PAWN_WHITE);
@@ -414,27 +406,22 @@ public class ChessGUI implements Observer, ActionListener {
 				} else if (description.equals(QUEEN_WHITE)) {
 					System.out.println(QUEEN_WHITE);
 					setFromPiece(toPieceButton);
-					algebraicMove += "Q";
 					didSelect = true;
 				} else if (description.equals(KING_WHITE)) {
 					System.out.println(KING_WHITE);
 					setFromPiece(toPieceButton);
-					algebraicMove += "K";
 					didSelect = true;
 				} else if (description.equals(ROOK_WHITE)) {
 					System.out.println(ROOK_WHITE);
 					setFromPiece(toPieceButton);
-					algebraicMove += "R";
 					didSelect = true;
 				} else if (description.equals(BISHOP_WHITE)) {
 					System.out.println(BISHOP_WHITE);
 					setFromPiece(toPieceButton);
-					algebraicMove += "B";
 					didSelect = true;
 				} else if (description.equals(KNIGHT_WHITE)) {
 					System.out.println(KNIGHT_WHITE);
 					setFromPiece(toPieceButton);
-					algebraicMove += "N";
 					didSelect = true;
 				}
 				algebraicMove += algebraicNotation[col][row];

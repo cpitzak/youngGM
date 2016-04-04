@@ -19,5 +19,10 @@ public class Controller {
 	public void resetBoard() {
 		board.initBoard();
 	}
+	
+	public void makeMove(String move) {
+		board.makeMove(move);
+		board.print();
+	}
 
 }
