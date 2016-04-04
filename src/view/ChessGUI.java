@@ -9,9 +9,11 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -29,28 +31,45 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import controller.Controller;
+import model.Board;
+
 /**
  * Code from: http://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
  * 
  * Modified by Clint
  */
-public class ChessGUI {
+public class ChessGUI implements Observer, ActionListener {
 
-    private final JPanel gui = new JPanel(new BorderLayout(3, 3));
+	private Controller controller;
+	private final JPanel gui = new JPanel(new BorderLayout(3, 3));
     private JButton[][] chessBoardSquares = new JButton[8][8];
     private Image[][] chessPieceImages = new Image[2][6];
     private JPanel chessBoard;
     private final JLabel message = new JLabel(
             "Chess Champ is ready to play!");
     private static final String COLS = "ABCDEFGH";
-    public static final int QUEEN = 0, KING = 1,
+    public static final int KING = 0, QUEEN = 1,
             ROOK = 2, KNIGHT = 3, BISHOP = 4, PAWN = 5;
     public static final int[] STARTING_ROW = {
-        ROOK, KNIGHT, BISHOP, KING, QUEEN, BISHOP, KNIGHT, ROOK
+        ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK
     };
     public static final int BLACK = 0, WHITE = 1;
+    private static final String PAWN_BLACK = "PAWN_BLACK";
+    private static final String QUEEN_BLACK = "QUEEN_BLACK";
+    private static final String KING_BLACK = "KING_BLACK";
+    private static final String ROOK_BLACK = "ROOK_BLACK";
+    private static final String KNIGHT_BLACK = "KNIGHT_BLACK";
+    private static final String BISHOP_BLACK = "BISHOP_BLACK";
+    
+    private static final String PAWN_WHITE = "PAWN_WHITE";
+    private static final String QUEEN_WHITE = "QUEEN_WHITE";
+    private static final String KING_WHITE = "KING_WHITE";
+    private static final String ROOK_WHITE = "ROOK_WHITE";
+    private static final String KNIGHT_WHITE = "KNIGHT_WHITE";
+    private static final String BISHOP_WHITE = "BISHOP_WHITE";
 
-    ChessGUI() {
+    public ChessGUI() {
         initializeGui();
     }
 
@@ -67,6 +86,7 @@ public class ChessGUI {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+            	controller.resetBoard();
                 setupNewGame();
             }
         };
@@ -127,6 +147,7 @@ public class ChessGUI {
         for (int ii = 0; ii < chessBoardSquares.length; ii++) {
             for (int jj = 0; jj < chessBoardSquares[ii].length; jj++) {
                 JButton b = new JButton();
+                b.addActionListener(this);
                 b.setMargin(buttonMargin);
                 // our chess pieces are 64x64 px in size, so we'll
                 // 'fill this in' using a transparent icon..
@@ -174,7 +195,7 @@ public class ChessGUI {
 
     private final void createImages() {
         try {
-            URL url = new URL("http://i.stack.imgur.com/memI0.png");
+//            URL url = new URL("http://i.stack.imgur.com/memI0.png");
             BufferedImage bi = ImageIO.read(new File("memI0.png"));
             for (int ii = 0; ii < 2; ii++) {
                 for (int jj = 0; jj < 6; jj++) {
@@ -194,23 +215,45 @@ public class ChessGUI {
     private final void setupNewGame() {
         message.setText("Make your move!");
         // set up the black pieces
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][0].setIcon(new ImageIcon(
-                    chessPieceImages[BLACK][STARTING_ROW[ii]]));
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            ImageIcon blackStartingRow = new ImageIcon(
+                    chessPieceImages[BLACK][STARTING_ROW[i]]);
+            blackStartingRow.setDescription(pieceNumToName(BLACK, STARTING_ROW[i]));
+			chessBoardSquares[i][0].setIcon(blackStartingRow);
         }
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][1].setIcon(new ImageIcon(
-                    chessPieceImages[BLACK][PAWN]));
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            ImageIcon blackPawnIcon = new ImageIcon(chessPieceImages[BLACK][PAWN]);
+            blackPawnIcon.setDescription(PAWN_BLACK);
+			chessBoardSquares[i][1].setIcon(blackPawnIcon);
         }
         // set up the white pieces
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][6].setIcon(new ImageIcon(
-                    chessPieceImages[WHITE][PAWN]));
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            ImageIcon whitePawn = new ImageIcon(
+                    chessPieceImages[WHITE][PAWN]);
+            whitePawn.setDescription(PAWN_WHITE);
+			chessBoardSquares[i][6].setIcon(whitePawn);
         }
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][7].setIcon(new ImageIcon(
-                    chessPieceImages[WHITE][STARTING_ROW[ii]]));
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            ImageIcon whiteStartingRow = new ImageIcon(
+                    chessPieceImages[WHITE][STARTING_ROW[i]]);
+            whiteStartingRow.setDescription(pieceNumToName(WHITE, STARTING_ROW[i]));
+			chessBoardSquares[i][7].setIcon(whiteStartingRow);
         }
+    }
+    
+    private String pieceNumToName(int color, int piece) {
+    	if (piece == QUEEN) {
+    		return color == 1 ? QUEEN_WHITE : QUEEN_BLACK;
+    	} else if (piece == KING) {
+    		return color == 1 ? KING_WHITE : KING_BLACK;
+    	} else if (piece == ROOK) {
+    		return color == 1 ? ROOK_WHITE : ROOK_BLACK;
+    	} else if (piece == KNIGHT) {
+    		return color == 1 ? KNIGHT_WHITE : KNIGHT_BLACK;
+    	} else if (piece == BISHOP) {
+    		return color == 1 ? BISHOP_WHITE : BISHOP_BLACK;
+    	}
+    	throw new IllegalStateException("error in pieceNumToName in GUI");
     }
 
     public static void main(String[] args) {
@@ -218,10 +261,16 @@ public class ChessGUI {
 
             @Override
             public void run() {
-                ChessGUI cg = new ChessGUI();
-
+            	Board model = new Board();
+            	ChessGUI view = new ChessGUI();
+            	model.addObserver(view);
+            	Controller controller = new Controller();
+            	controller.addModel(model);
+            	controller.addView(view);
+            	view.addController(controller);
+            	
                 JFrame f = new JFrame("ChessChamp");
-                f.add(cg.getGui());
+                f.add(view.getGui());
                 // Ensures JVM closes after frame(s) closed and
                 // all non-daemon threads are finished
                 f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -240,4 +289,60 @@ public class ChessGUI {
         // http://docs.oracle.com/javase/tutorial/uiswing/concurrency
         SwingUtilities.invokeLater(r);
     }
+    
+    public void addController(Controller controller) {
+    	this.controller = controller;
+    }
+    
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof String) {
+			System.out.println("Receieved command: " + arg);
+		}
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		System.out.println("button pressed");
+		if (e.getSource() instanceof JButton) {
+			for(int row = 0; row < chessBoardSquares.length; row++) {
+				for (int col =0; col<chessBoardSquares[0].length; col++) {
+					JButton button = chessBoardSquares[row][col];
+					if (button == e.getSource()) {
+						System.out.println("row: " + row + ", col: " + col);
+						ImageIcon icon = (ImageIcon) button.getIcon();
+						String description = icon.getDescription();
+						if (description != null) {
+							if (description.equals(PAWN_BLACK)) {
+								System.out.println(PAWN_BLACK);
+							} else if (description.equals(QUEEN_BLACK)) {
+								System.out.println(QUEEN_BLACK);
+							} else if (description.equals(KING_BLACK)) {
+								System.out.println(KING_BLACK);
+							} else if (description.equals(ROOK_BLACK)) {
+								System.out.println(ROOK_BLACK);
+							} else if (description.equals(BISHOP_BLACK)) {
+								System.out.println(BISHOP_BLACK);
+							} else if (description.equals(KNIGHT_BLACK)) {
+								System.out.println(KNIGHT_BLACK);
+							} else if (description.equals(PAWN_WHITE)) {
+								System.out.println(PAWN_WHITE);
+							} else if (description.equals(QUEEN_WHITE)) {
+								System.out.println(QUEEN_WHITE);
+							} else if (description.equals(KING_WHITE)) {
+								System.out.println(KING_WHITE);
+							} else if (description.equals(ROOK_WHITE)) {
+								System.out.println(ROOK_WHITE);
+							} else if (description.equals(BISHOP_WHITE)) {
+								System.out.println(BISHOP_WHITE);
+							} else if (description.equals(KNIGHT_WHITE)) {
+								System.out.println(KNIGHT_WHITE);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 }

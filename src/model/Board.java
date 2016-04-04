@@ -1,13 +1,14 @@
 package model;
 
+import java.util.Observable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import interfaces.GeneralCommands;
 import interfaces.PieceLibrary;
 import interfaces.SquareLibrary;
-import interfaces.UCICommands;
 
 //@formatter:off
 /**
@@ -54,7 +55,7 @@ import interfaces.UCICommands;
  *
  */
 //@formatter:on
-public class Board {
+public class Board extends Observable {
 
 	private final static Logger logger = Logger.getLogger(Board.class);
 
@@ -72,8 +73,14 @@ public class Board {
 	private int fullMoveClock;
 
 	public Board() {
+		initBoard();
+	}
+	
+	public void initBoard() {
 		init();
 		setupBoard();
+		setChanged();
+		notifyObservers(GeneralCommands.RESET_BOARD);
 	}
 
 	private void init() {
@@ -112,12 +119,18 @@ public class Board {
 		for (int i = A_FILE[1]; i <= H_FILE[1]; i++) {
 			board[i] = PieceLibrary.BLACK_PAWN;
 		}
-
-		System.out.println();
 	}
 
 	public Integer[] getBoard() {
-		return board;
+		Integer[] copyBoard = new Integer[board.length];
+		for(int i = 0; i < board.length; i++) {
+			if (board[i] != null) {
+				copyBoard[i] = new Integer(board[i]);
+			} else {
+				copyBoard[i] = null;
+			}
+		}
+		return copyBoard;
 	}
 
 	public int getHalfMoveClock() {
