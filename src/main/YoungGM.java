@@ -3,6 +3,8 @@ package main;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.BasicConfigurator;
+
 import controller.Controller;
 import model.Board;
 import view.ChessGUI;
@@ -10,6 +12,7 @@ import view.ChessGUI;
 public class YoungGM {
 	
 	public static void main(String[] args) {
+		BasicConfigurator.configure();
 		Runnable r = new Runnable() {
 
 			@Override
