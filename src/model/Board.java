@@ -1,5 +1,6 @@
 package model;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -254,6 +255,16 @@ public class Board extends Observable {
 		}
 		return true;
 	}
+	
+	private boolean isValidMove(Move move) {
+		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom());
+		for (Move m : moves) {
+			if (m.getTo() == move.getTo()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	// The move format is in long algebraic notation.
 	// A nullmove from the Engine to the GUI should be sent as 0000.
@@ -273,17 +284,31 @@ public class Board extends Observable {
 					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
 			return false;
 		}
+		String fromSquare = move.substring(0, 2).toLowerCase();
+		String toSquare = move.substring(2, 4).trim().toLowerCase();
+		
+		Integer squareFromInt = SquareLibrary.stringToIntMap.get(fromSquare);
+		Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
+		
+		if (squareFromInt == null || squareToInt == null) {
+			logger.error("malformed move");
+			return false;
+		}
+		
 		String promotion = null;
 		if (move.length() == 5) {
 			promotion = move.substring(4);
 		}
-		String fromSquare = move.substring(0, 2).toLowerCase();
-		String toSquare = move.substring(2, 4).trim().toLowerCase();
-		Integer squareFromInt = SquareLibrary.stringToIntMap.get(fromSquare);
+		
+		Move moveObj = new Move(squareFromInt, squareToInt, board[squareFromInt]);
+		if (!isValidMove(moveObj)) {
+			logger.error("invalid move");
+			return false;
+		}
+		
 		if (promotion != null) {
 			// promotion
 			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
-			Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
 			if (promotionPiece == null || squareToInt == null || squareFromInt == null) {
 				logger.error("malformed move");
 				return false;
@@ -291,7 +316,6 @@ public class Board extends Observable {
 			board[squareToInt] = promotionPiece;
 			board[squareFromInt] = null;
 		} else if (toSquare.length() == 2) {
-			Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
 			if (squareFromInt == null || squareToInt == null) {
 				logger.error("malformed move");
 				return false;
