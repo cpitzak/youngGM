@@ -277,17 +277,17 @@ public class Board extends Observable {
 	// A nullmove from the Engine to the GUI should be sent as 0000.
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 	//	https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long Algebraic Notation (LAN)
-	public void makeMove(String move) {
+	public boolean makeMove(String move) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
 		if (move == null || move.trim().length() < MIN_MOVE_LENGTH || move.trim().length() > MAX_MOVE_LENGTH) {
 			logger.error("Invalid move sent to makeMove");
-			return;
+			return false;
 		}
 		move = move.trim();
 		if (move.length() != 4 && move.length() != 5) {
-			throw new IllegalArgumentException(
-					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+			logger.error("malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+			return false;
 		}
 		String promotion = null;
 		if (move.length() == 5) {
@@ -301,21 +301,24 @@ public class Board extends Observable {
 			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
 			Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
 			if (promotionPiece == null || squareToInt == null || squareFromInt == null) {
-				throw new IllegalArgumentException("malformed move");
+				logger.error("malformed move");
+				return false;
 			}
 			board[squareToInt] = promotionPiece;
 			board[squareFromInt] = null;
 		} else if (toSquare.length() == 2) {
 			Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
 			if (squareFromInt == null || squareToInt == null) {
-				throw new IllegalArgumentException("malformed move");
+				logger.error("malformed move");
+				return false;
 			}
 			board[squareToInt] = board[squareFromInt];
 			board[squareFromInt] = null;
 		} else {
-			throw new IllegalArgumentException(
-					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+			logger.error("malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+			return false;
 		}
+		return true;
 	}
 
 	public void printBoardPieceIndexes() {

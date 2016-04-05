@@ -21,18 +21,15 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import controller.Controller;
-import model.Board;
 
 /**
  * Code from:
@@ -261,40 +258,6 @@ public class ChessGUI implements Observer, ActionListener {
 		throw new IllegalStateException("error in pieceNumToName in GUI");
 	}
 
-	public static void main(String[] args) {
-		Runnable r = new Runnable() {
-
-			@Override
-			public void run() {
-				Board model = new Board();
-				ChessGUI view = new ChessGUI();
-				model.addObserver(view);
-				Controller controller = new Controller();
-				controller.addModel(model);
-				controller.addView(view);
-				view.addController(controller);
-
-				JFrame f = new JFrame("ChessChamp");
-				f.add(view.getGui());
-				// Ensures JVM closes after frame(s) closed and
-				// all non-daemon threads are finished
-				f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				// See http://stackoverflow.com/a/7143398/418556 for demo.
-				f.setLocationByPlatform(true);
-
-				// ensures the frame is the minimum size it needs to be
-				// in order display the components within it
-				f.pack();
-				// ensures the minimum size is enforced.
-				f.setMinimumSize(f.getSize());
-				f.setVisible(true);
-			}
-		};
-		// Swing GUIs should be created and updated on the EDT
-		// http://docs.oracle.com/javase/tutorial/uiswing/concurrency
-		SwingUtilities.invokeLater(r);
-	}
-
 	public void addController(Controller controller) {
 		this.controller = controller;
 	}
@@ -306,128 +269,67 @@ public class ChessGUI implements Observer, ActionListener {
 		}
 	}
 
-	public boolean isValidMove(int row, int col, JButton toPiece) {
-		if (fromPieceButton == null) {
-			return false;
-		}
-		ImageIcon icon = (ImageIcon) toPiece.getIcon();
-		String toDescription = icon.getDescription();
-		ImageIcon fromIcon = (ImageIcon) fromPieceButton.getIcon();
-		String fromDescription = fromIcon.getDescription();
-		if ((toDescription.contains(WHITE_STRING) && fromDescription.contains(WHITE_STRING))
-				|| (toDescription.contains(BLACK_STRING) && fromDescription.contains(BLACK_STRING))) {
-			return false;
-		}
-		return true;
-	}
-
-	private void setFromPiece(JButton button) {
-		if (fromPieceButton == null) {
-			this.fromPieceButton = button;
-		}
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		System.out.println("button pressed");
 		if (e.getSource() instanceof JButton) {
-			boolean didSelect = false;
-			for (int row = 0; row < chessBoardSquares.length; row++) {
-				for (int col = 0; col < chessBoardSquares[0].length; col++) {
-					JButton button = chessBoardSquares[row][col];
-					if (button == e.getSource()) {
-						System.out.println("row: " + row + ", col: " + col);
-						didSelect = makeMove(button, row, col);
-						break;
+			JButton selectedButton = (JButton) e.getSource();
+			Square square = getButtonSquareInChessBoardSquares(selectedButton);
+			// selected a chess board square
+			if (square != null) {
+				if (fromPieceButton == null) {
+					fromPieceButton = selectedButton;
+					algebraicMove = algebraicNotation[square.getCol()][square.getRow()];
+				} else {
+					algebraicMove += algebraicNotation[square.getCol()][square.getRow()];
+					System.out.println("move: " + algebraicMove);
+
+					boolean didMove = controller.makeMove(algebraicMove);
+					if (didMove) {
+						selectedButton.setIcon(fromPieceButton.getIcon());
+						fromPieceButton.setIcon(transparentIcon);
 					}
-				}
-				if (didSelect) {
-					break;
+					fromPieceButton = null;
+					algebraicMove = "";
 				}
 			}
 		}
 	}
 
-	// TODO: pawn promotion in long algebraic format
-	private boolean makeMove(JButton toPieceButton, int row, int col) {
-		boolean didSelect = false;
-		ImageIcon toIcon = (ImageIcon) toPieceButton.getIcon();
-		boolean isValidMove = isValidMove(row, col, toPieceButton);
-		if (fromPieceButton != null) {
-			// get to piece
-			if (fromPieceButton == toPieceButton) {
-				fromPieceButton = null;
-				didSelect = true;
-			} else if (isValidMove) {
-				algebraicMove += algebraicNotation[col][row];
-				System.out.println("move: " + algebraicMove);
-				toPieceButton.setIcon(fromPieceButton.getIcon());
-				fromPieceButton.setIcon(transparentIcon);
-				controller.makeMove(algebraicMove);
-				fromPieceButton = null;
-				algebraicMove = "";
-				didSelect = true;
-			} else {
-				fromPieceButton = null;
-				algebraicMove = "";
-			}
-		} else {
-			// get from piece
-			String description = toIcon.getDescription();
-			if (!description.isEmpty()) {
-				if (description.equals(PAWN_BLACK)) {
-					System.out.println(PAWN_BLACK);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(QUEEN_BLACK)) {
-					System.out.println(QUEEN_BLACK);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(KING_BLACK)) {
-					System.out.println(KING_BLACK);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(ROOK_BLACK)) {
-					System.out.println(ROOK_BLACK);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(BISHOP_BLACK)) {
-					System.out.println(BISHOP_BLACK);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(KNIGHT_BLACK)) {
-					System.out.println(KNIGHT_BLACK);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(PAWN_WHITE)) {
-					System.out.println(PAWN_WHITE);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(QUEEN_WHITE)) {
-					System.out.println(QUEEN_WHITE);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(KING_WHITE)) {
-					System.out.println(KING_WHITE);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(ROOK_WHITE)) {
-					System.out.println(ROOK_WHITE);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(BISHOP_WHITE)) {
-					System.out.println(BISHOP_WHITE);
-					setFromPiece(toPieceButton);
-					didSelect = true;
-				} else if (description.equals(KNIGHT_WHITE)) {
-					System.out.println(KNIGHT_WHITE);
-					setFromPiece(toPieceButton);
-					didSelect = true;
+	/**
+	 * @param button
+	 *            the button to find
+	 * @return the square if in chessBoardSquares, otherwise false
+	 */
+	private Square getButtonSquareInChessBoardSquares(JButton button) {
+		for (int row = 0; row < chessBoardSquares.length; row++) {
+			for (int col = 0; col < chessBoardSquares[0].length; col++) {
+				if (button == chessBoardSquares[row][col]) {
+					System.out.println("row: " + row + ", col: " + col);
+					return new Square(row, col);
 				}
-				algebraicMove += algebraicNotation[col][row];
 			}
 		}
-		return didSelect;
+		return null;
+	}
+
+	private class Square {
+		int row;
+		int col;
+
+		public Square(int row, int col) {
+			this.row = row;
+			this.col = col;
+		}
+
+		public int getRow() {
+			return row;
+		}
+
+		public int getCol() {
+			return col;
+		}
+
 	}
 
 }

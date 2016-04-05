@@ -18,11 +18,13 @@ public class Controller {
 	
 	public void resetBoard() {
 		board.initBoard();
+		board.print();
 	}
 	
-	public void makeMove(String move) {
-		board.makeMove(move);
+	public boolean makeMove(String move) {
+		boolean result = board.makeMove(move);
 		board.print();
+		return result;
 	}
 
 }
