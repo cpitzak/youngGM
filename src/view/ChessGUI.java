@@ -101,10 +101,10 @@ public class ChessGUI implements Observer, ActionListener {
 			}
 		};
 		tools.add(newGameAction);
-		tools.add(new JButton("Save")); // TODO - add functionality!
-		tools.add(new JButton("Restore")); // TODO - add functionality!
-		tools.addSeparator();
-		tools.add(new JButton("Resign")); // TODO - add functionality!
+//		tools.add(new JButton("Save")); // TODO - add functionality!
+//		tools.add(new JButton("Restore")); // TODO - add functionality!
+//		tools.addSeparator();
+//		tools.add(new JButton("Resign")); // TODO - add functionality!
 		tools.addSeparator();
 		tools.add(message);
 
