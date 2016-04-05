@@ -63,7 +63,7 @@ public class Board extends Observable {
 	private static final int[] A_FILE = { 112, 96, 80, 64, 48, 32, 16, 0 };
 	private static final int[] H_FILE = { 119, 103, 87, 71, 55, 39, 23, 7 };
 	private static final int RANK_LENGTH = 8;
-	private boolean whiteTurn;
+	private boolean isWhitesTurn;
 	private boolean whiteCanCastleKingSide;
 	private boolean whiteCanCastleQueenSide;
 	private boolean blackCanCastleKingSide;
@@ -75,7 +75,7 @@ public class Board extends Observable {
 	public Board() {
 		initBoard();
 	}
-	
+
 	public void initBoard() {
 		init();
 		setupBoard();
@@ -85,7 +85,7 @@ public class Board extends Observable {
 
 	private void init() {
 		board = new Integer[128];
-		whiteTurn = true;
+		isWhitesTurn = true;
 		whiteCanCastleKingSide = true;
 		whiteCanCastleQueenSide = true;
 		blackCanCastleKingSide = true;
@@ -123,7 +123,7 @@ public class Board extends Observable {
 
 	public Integer[] getBoard() {
 		Integer[] copyBoard = new Integer[board.length];
-		for(int i = 0; i < board.length; i++) {
+		for (int i = 0; i < board.length; i++) {
 			if (board[i] != null) {
 				copyBoard[i] = new Integer(board[i]);
 			} else {
@@ -145,8 +145,8 @@ public class Board extends Observable {
 		return enPassantTargetSquare;
 	}
 
-	public boolean isWhiteTurn() {
-		return whiteTurn;
+	public boolean isWhitesTurn() {
+		return isWhitesTurn;
 	}
 
 	public boolean isWhiteCanCastleKingSide() {
@@ -171,103 +171,85 @@ public class Board extends Observable {
 					+ " Doing nothing, check FEN and try again.");
 			return false;
 		}
-		try {
-			final int EXPECTED_FEN_TOKENS_COUNT = 6;
-			init();
-			String[] fenTokens = fen.split("\\s+");
-			if (fenTokens.length != EXPECTED_FEN_TOKENS_COUNT) {
-				String message = "FEN doesn't contain proper amount of fields, six fields required";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-			String[] rankPieceTokens = fenTokens[0].split("/");
-			if (rankPieceTokens.length != RANK_LENGTH) {
-				String message = "malformed FEN, perhaps not enough pieces specified in FEN.";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-			for (int i = 0; i < rankPieceTokens.length; i++) {
-				int boardIndex = A_FILE[i];
-				String rankPieces = rankPieceTokens[i].trim();
-				for (int j = 0; j < rankPieces.length(); j++) {
-					String rankPiece = String.valueOf(rankPieces.charAt(j));
-					if (Utilities.isInteger(rankPiece)) {
-						boardIndex += Integer.parseInt(rankPiece);
-					} else {
-						Integer piece = PieceLibrary.stringToIntMap.get(rankPiece);
-						if (piece == null) {
-							String message = "malformed FEN, piece not specified correctly.";
-							logger.error(message);
-							throw new IllegalStateException(message);
-						}
-						board[boardIndex] = piece;
-						boardIndex++;
+		final int EXPECTED_FEN_TOKENS_COUNT = 6;
+		init();
+		String[] fenTokens = fen.split("\\s+");
+		if (fenTokens.length != EXPECTED_FEN_TOKENS_COUNT) {
+			logger.error("FEN doesn't contain proper amount of fields, six fields required");
+			return false;
+		}
+		String[] rankPieceTokens = fenTokens[0].split("/");
+		if (rankPieceTokens.length != RANK_LENGTH) {
+			logger.error("malformed FEN, perhaps not enough pieces specified in FEN.");
+			return false;
+		}
+		for (int i = 0; i < rankPieceTokens.length; i++) {
+			int boardIndex = A_FILE[i];
+			String rankPieces = rankPieceTokens[i].trim();
+			for (int j = 0; j < rankPieces.length(); j++) {
+				String rankPiece = String.valueOf(rankPieces.charAt(j));
+				if (Utilities.isInteger(rankPiece)) {
+					boardIndex += Integer.parseInt(rankPiece);
+				} else {
+					Integer piece = PieceLibrary.stringToIntMap.get(rankPiece);
+					if (piece == null) {
+						logger.error("malformed FEN, piece not specified correctly.");
+						return false;
 					}
+					board[boardIndex] = piece;
+					boardIndex++;
 				}
 			}
-			if (fenTokens[1].equals("w")) {
-				whiteTurn = true;
-			} else if (fenTokens[1].equals("b")) {
-				whiteTurn = false;
-			} else {
-				String message = "malformed FEN, perhaps players turn not specified correctly.";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-
-			final int MAX_CASTLING_RIGHTS_LENGTH = 4;
-			String castlingRights = fenTokens[2];
-			Pattern p = Pattern.compile("[QKqk-]");
-			Matcher m = p.matcher(castlingRights);
-			if (castlingRights.length() > MAX_CASTLING_RIGHTS_LENGTH || !m.find()) {
-				String message = "malformed FEN, perhaps castling rights not specified correctly.";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-			if (!castlingRights.contains("K")) {
-				whiteCanCastleKingSide = false;
-			}
-			if (!castlingRights.contains("Q")) {
-				whiteCanCastleQueenSide = false;
-			}
-			if (!castlingRights.contains("k")) {
-				blackCanCastleKingSide = false;
-			}
-			if (!castlingRights.contains("q")) {
-				blackCanCastleQueenSide = false;
-			}
-
-			if (!fenTokens[3].equals("-") && SquareLibrary.stringToIntMap.get(fenTokens[3]) == null) {
-				String message = "malformed FEN, perhaps enpassant target square not specified correctly.";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-
-			if (!fenTokens[3].equals("-")) {
-				enPassantTargetSquare = fenTokens[3];
-			}
-
-			if (Utilities.isInteger(fenTokens[4])) {
-				halfMoveClock = Integer.parseInt(fenTokens[4]);
-			} else {
-				String message = "malformed FEN, perhaps halfmove clock not specified correctly.";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-			if (Utilities.isInteger(fenTokens[5])) {
-				fullMoveClock = Integer.parseInt(fenTokens[5]);
-			} else {
-				String message = "malformed FEN, perhaps fullmove clock not specified correctly.";
-				logger.error(message);
-				throw new IllegalStateException(message);
-			}
-		} catch (IllegalStateException e) {
-			init();
-			logger.error("Caught exception in importFEN. Cleared board to avoid an illegal state.");
+		}
+		if (fenTokens[1].equals("w")) {
+			isWhitesTurn = true;
+		} else if (fenTokens[1].equals("b")) {
+			isWhitesTurn = false;
+		} else {
+			logger.error("malformed FEN, perhaps players turn not specified correctly.");
 			return false;
-		} catch (IllegalArgumentException e) {
-			init();
-			logger.error("Caught exception in importFEN. Cleared board to avoid an illegal state.");
+		}
+
+		final int MAX_CASTLING_RIGHTS_LENGTH = 4;
+		String castlingRights = fenTokens[2];
+		Pattern p = Pattern.compile("[QKqk-]");
+		Matcher m = p.matcher(castlingRights);
+		if (castlingRights.length() > MAX_CASTLING_RIGHTS_LENGTH || !m.find()) {
+			logger.error("malformed FEN, perhaps castling rights not specified correctly.");
+			return false;
+		}
+		if (!castlingRights.contains("K")) {
+			whiteCanCastleKingSide = false;
+		}
+		if (!castlingRights.contains("Q")) {
+			whiteCanCastleQueenSide = false;
+		}
+		if (!castlingRights.contains("k")) {
+			blackCanCastleKingSide = false;
+		}
+		if (!castlingRights.contains("q")) {
+			blackCanCastleQueenSide = false;
+		}
+
+		if (!fenTokens[3].equals("-") && SquareLibrary.stringToIntMap.get(fenTokens[3]) == null) {
+			logger.error("malformed FEN, perhaps enpassant target square not specified correctly.");
+			return false;
+		}
+
+		if (!fenTokens[3].equals("-")) {
+			enPassantTargetSquare = fenTokens[3];
+		}
+
+		if (Utilities.isInteger(fenTokens[4])) {
+			halfMoveClock = Integer.parseInt(fenTokens[4]);
+		} else {
+			logger.error("malformed FEN, perhaps halfmove clock not specified correctly.");
+			return false;
+		}
+		if (Utilities.isInteger(fenTokens[5])) {
+			fullMoveClock = Integer.parseInt(fenTokens[5]);
+		} else {
+			logger.error("malformed FEN, perhaps fullmove clock not specified correctly.");
 			return false;
 		}
 		return true;
@@ -276,7 +258,8 @@ public class Board extends Observable {
 	// The move format is in long algebraic notation.
 	// A nullmove from the Engine to the GUI should be sent as 0000.
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
-	//	https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long Algebraic Notation (LAN)
+	// https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long
+	// Algebraic Notation (LAN)
 	public boolean makeMove(String move) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
@@ -286,7 +269,8 @@ public class Board extends Observable {
 		}
 		move = move.trim();
 		if (move.length() != 4 && move.length() != 5) {
-			logger.error("malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+			logger.error(
+					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
 			return false;
 		}
 		String promotion = null;
@@ -315,7 +299,8 @@ public class Board extends Observable {
 			board[squareToInt] = board[squareFromInt];
 			board[squareFromInt] = null;
 		} else {
-			logger.error("malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+			logger.error(
+					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
 			return false;
 		}
 		return true;

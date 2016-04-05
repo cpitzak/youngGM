@@ -22,7 +22,7 @@ public class YoungGM {
 				controller.addView(view);
 				view.addController(controller);
 
-				JFrame f = new JFrame("ChessChamp");
+				JFrame f = new JFrame("YoungGM");
 				f.add(view.getGui());
 				// Ensures JVM closes after frame(s) closed and
 				// all non-daemon threads are finished

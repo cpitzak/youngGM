@@ -1,15 +1,15 @@
 package model;
 
-import interfaces.PieceLibrary;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import interfaces.PieceLibrary;
 
 public class BoardTest {
 	
@@ -72,7 +72,7 @@ public class BoardTest {
 		Board board = new Board();
 		board.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-		assertThat(board.isWhiteTurn(), is(true));
+		assertThat(board.isWhitesTurn(), is(true));
 		assertThat(board.isWhiteCanCastleKingSide(), is(true));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(true));
 		assertThat(board.isBlackCanCastleKingSide(), is(true));
@@ -179,7 +179,7 @@ public class BoardTest {
 		Board board = new Board();
 		board.importFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
 
-		assertThat(board.isWhiteTurn(), is(false));
+		assertThat(board.isWhitesTurn(), is(false));
 		assertThat(board.isWhiteCanCastleKingSide(), is(true));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(true));
 		assertThat(board.isBlackCanCastleKingSide(), is(true));
@@ -240,7 +240,7 @@ public class BoardTest {
 		Board board = new Board();
 		board.importFEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2");
 
-		assertThat(board.isWhiteTurn(), is(true));
+		assertThat(board.isWhitesTurn(), is(true));
 		assertThat(board.isWhiteCanCastleKingSide(), is(true));
 		assertThat(board.isWhiteCanCastleQueenSide(), is(true));
 		assertThat(board.isBlackCanCastleKingSide(), is(true));
