@@ -64,8 +64,6 @@ public class ChessGUI implements Observer, ActionListener {
 	private static final String KNIGHT_WHITE = "KNIGHT_WHITE";
 	private static final String BISHOP_WHITE = "BISHOP_WHITE";
 
-	private static final String WHITE_STRING = "WHITE";
-	private static final String BLACK_STRING = "BLACK";
 	private String algebraicMove = "";
 
 	private JButton fromPieceButton;
