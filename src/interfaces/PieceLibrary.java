@@ -37,6 +37,7 @@ public abstract class PieceLibrary {
 	// up left, up right, down left, down right
 	public static final int[] BISHOP_MOVE_DELTA = { 15, 17, -15, -17 };
 	public static final int[] PAWN_MOVE_DELTA = { 16, 32 };
+	public static final int[] PAWN_MOVE_ATTACK_DELTA = { 15, 17 };
 	// 0: N NW, 1: N NE, 2: E NE, 3: E SE, 4: S SE, 5: S SW, 6: W SW, 7: W NW
 	public static final int[] KNIGHT_MOVE_DELTA = { 31, 33, 18, -14, -31, -33, -18, 14 };
 	// starts with left and goes counter clockwise

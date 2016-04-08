@@ -30,21 +30,32 @@ public class MoveGenerator {
 		} else if (piece == PieceLibrary.BLACK_KING) {
 			moves = getSingleMoves(piece, from, board, false, PieceLibrary.KING_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_PAWN) {
-			for (int i = 0; i < PieceLibrary.PAWN_MOVE_DELTA.length; i++) {
-				int to = from + PieceLibrary.PAWN_MOVE_DELTA[i];
-				if ((to & 0x88) == 0) {
-					moves.add(new Move(from, to, piece));
-				}
-			}
+			moves = getPawnMoves(piece, from, board, true, PieceLibrary.PAWN_MOVE_DELTA,
+					PieceLibrary.PAWN_MOVE_ATTACK_DELTA);
 		} else if (piece == PieceLibrary.BLACK_PAWN) {
-			for (int i = 0; i < PieceLibrary.PAWN_MOVE_DELTA.length; i++) {
-				int to = from - PieceLibrary.PAWN_MOVE_DELTA[i];
-				if ((to & 0x88) == 0) {
-					moves.add(new Move(from, to, piece));
-				}
-			}
+			moves = getPawnMoves(piece, from, board, false, PieceLibrary.PAWN_MOVE_DELTA,
+					PieceLibrary.PAWN_MOVE_ATTACK_DELTA);
 		} else {
 			throw new IllegalArgumentException("ERROR: tried to find possible moves with an undefined piece");
+		}
+		return moves;
+	}
+
+	private static List<Move> getPawnMoves(Integer piece, int from, Integer[] board, boolean isWhite, int[] delta,
+			int[] attackDelta) {
+		List<Move> moves = new ArrayList<Move>();
+		for (int i = 0; i < PieceLibrary.PAWN_MOVE_ATTACK_DELTA.length; i++) {
+			int to = isWhite ? (from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[i])
+					: (from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[i]);
+			if ((to & 0x88) == 0 && isAttack(piece, to, board)) {
+				moves.add(new Move(from, to, piece));
+			}
+		}
+		for (int i = 0; i < PieceLibrary.PAWN_MOVE_DELTA.length; i++) {
+			int to = isWhite ? (from + PieceLibrary.PAWN_MOVE_DELTA[i]) : (from - PieceLibrary.PAWN_MOVE_DELTA[i]);
+			if ((to & 0x88) == 0 && !isAttack(piece, to, board)) {
+				moves.add(new Move(from, to, piece));
+			}
 		}
 		return moves;
 	}
