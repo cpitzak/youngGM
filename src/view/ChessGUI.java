@@ -99,10 +99,10 @@ public class ChessGUI implements Observer, ActionListener {
 			}
 		};
 		tools.add(newGameAction);
-//		tools.add(new JButton("Save")); // TODO - add functionality!
-//		tools.add(new JButton("Restore")); // TODO - add functionality!
-//		tools.addSeparator();
-//		tools.add(new JButton("Resign")); // TODO - add functionality!
+		// tools.add(new JButton("Save")); // TODO - add functionality!
+		// tools.add(new JButton("Restore")); // TODO - add functionality!
+		// tools.addSeparator();
+		// tools.add(new JButton("Resign")); // TODO - add functionality!
 		tools.addSeparator();
 		tools.add(message);
 
@@ -275,11 +275,14 @@ public class ChessGUI implements Observer, ActionListener {
 			Square square = getButtonSquareInChessBoardSquares(selectedButton);
 			// selected a chess board square
 			if (square != null) {
+				String algebraicSquare = algebraicNotation[square.getCol()][square.getRow()];
 				if (fromPieceButton == null) {
-					fromPieceButton = selectedButton;
-					algebraicMove = algebraicNotation[square.getCol()][square.getRow()];
+					if (!controller.isSquareEmpty(algebraicSquare)) {
+						fromPieceButton = selectedButton;
+						algebraicMove = algebraicSquare;
+					}
 				} else {
-					algebraicMove += algebraicNotation[square.getCol()][square.getRow()];
+					algebraicMove += algebraicSquare;
 					System.out.println("move: " + algebraicMove);
 
 					boolean didMove = controller.makeMove(algebraicMove);

@@ -26,5 +26,9 @@ public class Controller {
 		board.print();
 		return result;
 	}
+	
+	public boolean isSquareEmpty(String algebraicSquare) {
+		return board.isSquareEmpty(algebraicSquare);
+	}
 
 }

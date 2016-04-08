@@ -265,6 +265,14 @@ public class Board extends Observable {
 		}
 		return false;
 	}
+	
+	public boolean isSquareEmpty(String algebraicSquare) {
+		Integer squareInt = SquareLibrary.stringToIntMap.get(algebraicSquare);
+		if (squareInt == null) {
+			throw new IllegalArgumentException("invalid square");
+		}
+		return board[squareInt] == null;
+	}
 
 	// The move format is in long algebraic notation.
 	// A nullmove from the Engine to the GUI should be sent as 0000.
