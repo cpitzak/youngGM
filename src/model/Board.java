@@ -257,7 +257,7 @@ public class Board extends Observable {
 	}
 	
 	private boolean isValidMove(Move move) {
-		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom());
+		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), board);
 		for (Move m : moves) {
 			if (m.getTo() == move.getTo()) {
 				return true;

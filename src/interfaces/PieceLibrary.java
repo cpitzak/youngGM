@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface PieceLibrary {
+public abstract class PieceLibrary {
 
 	public static final int WHITE_PAWN = 1;
 	public static final int WHITE_KNIGHT = 2;
@@ -44,42 +44,56 @@ public interface PieceLibrary {
 	public static final int[] ROOK_MOVE_DELTA = { -1, 16, 1, -16 };
 	public static final int[] QUEEN_MOVE_DELTA = { -1, 15, 16, 17, 1, -15, -16, -17 };
 
-	public static final Map<String, Integer> stringToIntMap = Collections.unmodifiableMap(new HashMap<String, Integer>() {
-		private static final long serialVersionUID = 1L;
-		{
-			put(WHITE_PAWN_STRING, WHITE_PAWN);
-			put(WHITE_KNIGHT_STRING, WHITE_KNIGHT);
-			put(WHITE_KING_STRING, WHITE_KING);
-			put(WHITE_BISHOP_STRING, WHITE_BISHOP);
-			put(WHITE_ROOK_STRING, WHITE_ROOK);
-			put(WHITE_QUEEN_STRING, WHITE_QUEEN);
+	public static final Map<String, Integer> stringToIntMap = Collections
+			.unmodifiableMap(new HashMap<String, Integer>() {
+				private static final long serialVersionUID = 1L;
 
-			put(BLACK_PAWN_STRING, BLACK_PAWN);
-			put(BLACK_KNIGHT_STRING, BLACK_KNIGHT);
-			put(BLACK_KING_STRING, BLACK_KING);
-			put(BLACK_BISHOP_STRING, BLACK_BISHOP);
-			put(BLACK_ROOK_STRING, BLACK_ROOK);
-			put(BLACK_QUEEN_STRING, BLACK_QUEEN);
-		}
-	});
+				{
+					put(WHITE_PAWN_STRING, WHITE_PAWN);
+					put(WHITE_KNIGHT_STRING, WHITE_KNIGHT);
+					put(WHITE_KING_STRING, WHITE_KING);
+					put(WHITE_BISHOP_STRING, WHITE_BISHOP);
+					put(WHITE_ROOK_STRING, WHITE_ROOK);
+					put(WHITE_QUEEN_STRING, WHITE_QUEEN);
+
+					put(BLACK_PAWN_STRING, BLACK_PAWN);
+					put(BLACK_KNIGHT_STRING, BLACK_KNIGHT);
+					put(BLACK_KING_STRING, BLACK_KING);
+					put(BLACK_BISHOP_STRING, BLACK_BISHOP);
+					put(BLACK_ROOK_STRING, BLACK_ROOK);
+					put(BLACK_QUEEN_STRING, BLACK_QUEEN);
+				}
+			});
+
+	public static final Map<Integer, String> intToStringMap = Collections
+			.unmodifiableMap(new HashMap<Integer, String>() {
+				private static final long serialVersionUID = 1L;
+
+				{
+					put(WHITE_PAWN, WHITE_PAWN_STRING);
+					put(WHITE_KNIGHT, WHITE_KNIGHT_STRING);
+					put(WHITE_KING, WHITE_KING_STRING);
+					put(WHITE_BISHOP, WHITE_BISHOP_STRING);
+					put(WHITE_ROOK, WHITE_ROOK_STRING);
+					put(WHITE_QUEEN, WHITE_QUEEN_STRING);
+
+					put(BLACK_PAWN, BLACK_PAWN_STRING);
+					put(BLACK_KNIGHT, BLACK_KNIGHT_STRING);
+					put(BLACK_KING, BLACK_KING_STRING);
+					put(BLACK_BISHOP, BLACK_BISHOP_STRING);
+					put(BLACK_ROOK, BLACK_ROOK_STRING);
+					put(BLACK_QUEEN, BLACK_QUEEN_STRING);
+				}
+			});
 	
-	public static final Map<Integer, String> intToStringMap = Collections.unmodifiableMap(new HashMap<Integer, String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			put(WHITE_PAWN, WHITE_PAWN_STRING);
-			put(WHITE_KNIGHT, WHITE_KNIGHT_STRING);
-			put(WHITE_KING, WHITE_KING_STRING);
-			put(WHITE_BISHOP, WHITE_BISHOP_STRING);
-			put(WHITE_ROOK, WHITE_ROOK_STRING);
-			put(WHITE_QUEEN, WHITE_QUEEN_STRING);
-
-			put(BLACK_PAWN, BLACK_PAWN_STRING);
-			put(BLACK_KNIGHT, BLACK_KNIGHT_STRING);
-			put(BLACK_KING, BLACK_KING_STRING);
-			put(BLACK_BISHOP, BLACK_BISHOP_STRING);
-			put(BLACK_ROOK, BLACK_ROOK_STRING);
-			put(BLACK_QUEEN, BLACK_QUEEN_STRING);
-		}
-	});
+	public static boolean isWhite(Integer piece) {
+		return piece != null && (piece == WHITE_PAWN || piece == WHITE_BISHOP || piece == WHITE_KNIGHT || piece == WHITE_ROOK
+				|| piece == WHITE_QUEEN || piece == WHITE_KING);
+	}
+	
+	public static boolean isBlack(Integer piece) {
+		return piece != null && (piece == BLACK_PAWN || piece == BLACK_BISHOP || piece == BLACK_KNIGHT || piece == BLACK_ROOK
+				|| piece == BLACK_QUEEN || piece == BLACK_KING);
+	}
 
 }
