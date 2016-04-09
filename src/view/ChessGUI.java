@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -108,7 +109,7 @@ public class ChessGUI implements Observer, ActionListener {
 
 		gui.add(new JLabel("?"), BorderLayout.LINE_START);
 
-		chessBoard = new JPanel(new GridLayout(0, 9)) {
+		chessBoard = new JPanel(new GridLayout(0, 10)) {
 
 			/**
 			 * Override the preferred size to return the largest it can, in a
@@ -137,17 +138,20 @@ public class ChessGUI implements Observer, ActionListener {
 		};
 		chessBoard.setBorder(new CompoundBorder(new EmptyBorder(8, 8, 8, 8), new LineBorder(Color.BLACK)));
 		// Set the BG to be ochre
-		Color ochre = new Color(204, 119, 34);
-		chessBoard.setBackground(ochre);
+		Color beigeSquare = new Color(238, 238, 210);
+		chessBoard.setBackground(Color.LIGHT_GRAY);
 		JPanel boardConstrain = new JPanel(new GridBagLayout());
-		boardConstrain.setBackground(ochre);
+		boardConstrain.setBackground(Color.WHITE);
 		boardConstrain.add(chessBoard);
 		gui.add(boardConstrain);
 
+		Color greenSquare = new Color(118, 150, 86);
+		Border squareBorder = new LineBorder(Color.BLACK, 1);
+		
 		// create the chess board squares
 		Insets buttonMargin = new Insets(0, 0, 0, 0);
-		for (int ii = 0; ii < chessBoardSquares.length; ii++) {
-			for (int jj = 0; jj < chessBoardSquares[ii].length; jj++) {
+		for (int i = 0; i < chessBoardSquares.length; i++) {
+			for (int j = 0; j < chessBoardSquares[i].length; j++) {
 				JButton b = new JButton();
 				b.addActionListener(this);
 				b.setMargin(buttonMargin);
@@ -156,14 +160,15 @@ public class ChessGUI implements Observer, ActionListener {
 				// ImageIcon icon = new ImageIcon(
 				// new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB));
 				b.setIcon(transparentIcon);
-				if ((jj % 2 == 1 && ii % 2 == 1)
+				b.setBorder(squareBorder);
+				if ((j % 2 == 1 && i % 2 == 1)
 						// ) {
-						|| (jj % 2 == 0 && ii % 2 == 0)) {
-					b.setBackground(Color.WHITE);
+						|| (j % 2 == 0 && i % 2 == 0)) {
+					b.setBackground(beigeSquare);
 				} else {
-					b.setBackground(Color.BLACK);
+					b.setBackground(greenSquare);
 				}
-				chessBoardSquares[jj][ii] = b;
+				chessBoardSquares[j][i] = b;
 			}
 		}
 
@@ -171,20 +176,21 @@ public class ChessGUI implements Observer, ActionListener {
 		 * fill the chess board
 		 */
 		chessBoard.add(new JLabel(""));
-		// fill the top row
-		for (int ii = 0; ii < 8; ii++) {
-			chessBoard.add(new JLabel(COLS.substring(ii, ii + 1), SwingConstants.CENTER));
+		for (int i = 0; i < 8; i++) {
+			chessBoard.add(new JLabel("", SwingConstants.CENTER));
 		}
+		chessBoard.add(new JLabel(""));
 		// fill the black non-pawn piece row
-		for (int ii = 0; ii < 8; ii++) {
-			for (int jj = 0; jj < 8; jj++) {
-				switch (jj) {
-				case 0:
-					chessBoard.add(new JLabel("" + (9 - (ii + 1)), SwingConstants.CENTER));
-				default:
-					chessBoard.add(chessBoardSquares[jj][ii]);
-				}
+		for (int row = 0; row < 8; row++) {
+			chessBoard.add(new JLabel("" + (8 - row), SwingConstants.CENTER));
+			for (int col = 0; col < 8; col++) {
+				chessBoard.add(chessBoardSquares[col][row]);
 			}
+			chessBoard.add(new JLabel(""));
+		}
+		chessBoard.add(new JLabel(""));
+		for (int i = 0; i < 8; i++) {
+			chessBoard.add(new JLabel(COLS.substring(i, i + 1), SwingConstants.CENTER));
 		}
 	}
 
