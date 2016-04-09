@@ -7,28 +7,28 @@ import interfaces.PieceLibrary;
 
 public class MoveGenerator {
 
-	public static List<Move> getPossibleMoves(Integer piece, int from, Integer[] board) {
+	public static List<Move> getPossibleMoves(Integer piece, int from, Board board) {
 		List<Move> moves = new ArrayList<Move>();
 		if (piece == PieceLibrary.WHITE_BISHOP) {
-			moves = getSliderMoves(piece, from, board, true, PieceLibrary.BISHOP_MOVE_DELTA);
+			moves = getSliderMoves(piece, from, board.getBoard(), true, PieceLibrary.BISHOP_MOVE_DELTA);
 		} else if (piece == PieceLibrary.BLACK_BISHOP) {
-			moves = getSliderMoves(piece, from, board, false, PieceLibrary.BISHOP_MOVE_DELTA);
+			moves = getSliderMoves(piece, from, board.getBoard(), false, PieceLibrary.BISHOP_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_ROOK) {
-			moves = getSliderMoves(piece, from, board, true, PieceLibrary.ROOK_MOVE_DELTA);
+			moves = getSliderMoves(piece, from, board.getBoard(), true, PieceLibrary.ROOK_MOVE_DELTA);
 		} else if (piece == PieceLibrary.BLACK_ROOK) {
-			moves = getSliderMoves(piece, from, board, false, PieceLibrary.ROOK_MOVE_DELTA);
+			moves = getSliderMoves(piece, from, board.getBoard(), false, PieceLibrary.ROOK_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_QUEEN) {
-			moves = getSliderMoves(piece, from, board, true, PieceLibrary.QUEEN_MOVE_DELTA);
+			moves = getSliderMoves(piece, from, board.getBoard(), true, PieceLibrary.QUEEN_MOVE_DELTA);
 		} else if (piece == PieceLibrary.BLACK_QUEEN) {
-			moves = getSliderMoves(piece, from, board, false, PieceLibrary.QUEEN_MOVE_DELTA);
+			moves = getSliderMoves(piece, from, board.getBoard(), false, PieceLibrary.QUEEN_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_KNIGHT) {
-			moves = getSingleMoves(piece, from, board, true, PieceLibrary.KNIGHT_MOVE_DELTA);
+			moves = getSingleMoves(piece, from, board.getBoard(), true, PieceLibrary.KNIGHT_MOVE_DELTA);
 		} else if (piece == PieceLibrary.BLACK_KNIGHT) {
-			moves = getSingleMoves(piece, from, board, false, PieceLibrary.KNIGHT_MOVE_DELTA);
+			moves = getSingleMoves(piece, from, board.getBoard(), false, PieceLibrary.KNIGHT_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_KING) {
-			moves = getSingleMoves(piece, from, board, true, PieceLibrary.KING_MOVE_DELTA);
+			moves = getSingleMoves(piece, from, board.getBoard(), true, PieceLibrary.KING_MOVE_DELTA);
 		} else if (piece == PieceLibrary.BLACK_KING) {
-			moves = getSingleMoves(piece, from, board, false, PieceLibrary.KING_MOVE_DELTA);
+			moves = getSingleMoves(piece, from, board.getBoard(), false, PieceLibrary.KING_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_PAWN) {
 			moves = getPawnMoves(piece, from, board, true, PieceLibrary.PAWN_MOVE_DELTA,
 					PieceLibrary.PAWN_MOVE_ATTACK_DELTA);
@@ -41,20 +41,41 @@ public class MoveGenerator {
 		return moves;
 	}
 
-	private static List<Move> getPawnMoves(Integer piece, int from, Integer[] board, boolean isWhite, int[] delta,
+	private static List<Move> getPawnMoves(Integer piece, int from, Board board, boolean isWhite, int[] delta,
 			int[] attackDelta) {
+		Integer[] intBoard = board.getBoard();
 		List<Move> moves = new ArrayList<Move>();
 		for (int i = 0; i < PieceLibrary.PAWN_MOVE_ATTACK_DELTA.length; i++) {
 			int to = isWhite ? (from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[i])
 					: (from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[i]);
-			if ((to & 0x88) == 0 && isAttack(piece, to, board)) {
+			if ((to & 0x88) == 0 && isAttack(piece, to, intBoard)) {
 				moves.add(new Move(from, to, piece));
 			}
 		}
 		for (int i = 0; i < PieceLibrary.PAWN_MOVE_DELTA.length; i++) {
 			int to = isWhite ? (from + PieceLibrary.PAWN_MOVE_DELTA[i]) : (from - PieceLibrary.PAWN_MOVE_DELTA[i]);
-			if ((to & 0x88) == 0 && !isAttack(piece, to, board)) {
+			if ((to & 0x88) == 0 && !isAttack(piece, to, intBoard)) {
 				moves.add(new Move(from, to, piece));
+			}
+		}
+		// en passant
+		if (isWhite && board.square0x88ToRank(from) == Board.RANK_5) {
+			int leftTo = from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[0];
+			int rightTo = from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[1];
+			if ((leftTo & 0x88) == 0 && intBoard[leftTo] == null && PieceLibrary.isBlack(intBoard[from-1])) {
+				moves.add(new Move(from, leftTo, piece));
+			}
+			if ((rightTo & 0x88) == 0 && intBoard[rightTo] == null && PieceLibrary.isBlack(intBoard[from+1])) {
+				moves.add(new Move(from, rightTo, piece));
+			}
+		} else if (!isWhite && board.square0x88ToRank(from) == Board.RANK_4){
+			int rightTo = from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[0];
+			int leftTo = from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[1];
+			if ((rightTo & 0x88) == 0 && intBoard[rightTo] == null && PieceLibrary.isWhite(intBoard[from+1])) {
+				moves.add(new Move(from, rightTo, piece));
+			}
+			if ((leftTo & 0x88) == 0 && intBoard[leftTo] == null && PieceLibrary.isWhite(intBoard[from-1])) {
+				moves.add(new Move(from, leftTo, piece));
 			}
 		}
 		return moves;

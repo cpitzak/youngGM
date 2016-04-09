@@ -5,18 +5,24 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import interfaces.PieceLibrary;
 
 public class PieceInfoTest {
 	
-	private Integer[] nullBoard = new Integer[128];
+	private Board board = new Board();
+	
+	@Before
+	public void setup() {
+		board.clear();
+	}
 	
 	@Test
 	public void bishopMoves() {
 		int location = 68;
-		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_BISHOP, location, nullBoard);
+		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_BISHOP, location, board);
 		assertThat(possibleMoves.size(), is(13));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));
@@ -62,7 +68,7 @@ public class PieceInfoTest {
 	@Test
 	public void pawnMoves() {
 		int location = 20;
-		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_PAWN, location, nullBoard);
+		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_PAWN, location, board);
 		assertThat(possibleMoves.size(), is(2));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));
@@ -75,7 +81,7 @@ public class PieceInfoTest {
 	@Test
 	public void knightMoves() {
 		int location = 67;
-		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_KNIGHT, location, nullBoard);
+		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_KNIGHT, location, board);
 		assertThat(possibleMoves.size(), is(8));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));
@@ -106,7 +112,7 @@ public class PieceInfoTest {
 	@Test
 	public void kingMoves() {
 		int location = 67;
-		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_KING, location, nullBoard);
+		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_KING, location, board);
 		assertThat(possibleMoves.size(), is(8));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));
@@ -137,7 +143,7 @@ public class PieceInfoTest {
 	@Test
 	public void rookMoves() {
 		int location = 67;
-		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_ROOK, location, nullBoard);
+		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_ROOK, location, board);
 		assertThat(possibleMoves.size(), is(14));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));
@@ -186,7 +192,7 @@ public class PieceInfoTest {
 	@Test
 	public void queenMoves() {
 		int location = 67;
-		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_QUEEN, location, nullBoard);
+		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_QUEEN, location, board);
 		assertThat(possibleMoves.size(), is(27));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));

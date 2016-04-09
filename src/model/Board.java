@@ -59,6 +59,24 @@ import interfaces.SquareLibrary;
 public class Board extends Observable {
 
 	private final static Logger logger = Logger.getLogger(Board.class);
+	
+	public static final int RANK_1 = 0;
+	public static final int RANK_2 = 1;
+	public static final int RANK_3 = 2;
+	public static final int RANK_4 = 3;
+	public static final int RANK_5 = 4;
+	public static final int RANK_6 = 5;
+	public static final int RANK_7 = 6;
+	public static final int RANK_8 = 7;
+	
+	public static final int FILE_1 = 0;
+	public static final int FILE_2 = 1;
+	public static final int FILE_3 = 2;
+	public static final int FILE_4 = 3;
+	public static final int FILE_5 = 4;
+	public static final int FILE_6 = 5;
+	public static final int FILE_7 = 6;
+	public static final int FILE_8 = 7;
 
 	private Integer[] board;
 	private static final int[] A_FILE = { 112, 96, 80, 64, 48, 32, 16, 0 };
@@ -123,15 +141,11 @@ public class Board extends Observable {
 	}
 
 	public Integer[] getBoard() {
-		Integer[] copyBoard = new Integer[board.length];
-		for (int i = 0; i < board.length; i++) {
-			if (board[i] != null) {
-				copyBoard[i] = new Integer(board[i]);
-			} else {
-				copyBoard[i] = null;
-			}
-		}
-		return copyBoard;
+		return board;
+	}
+	
+	public void clear() {
+		board = new Integer[128];
 	}
 
 	public int getHalfMoveClock() {
@@ -257,7 +271,7 @@ public class Board extends Observable {
 	}
 	
 	private boolean isValidMove(Move move) {
-		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), board);
+		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), this);
 		for (Move m : moves) {
 			if (m.getTo() == move.getTo()) {
 				return true;
@@ -336,6 +350,18 @@ public class Board extends Observable {
 			return false;
 		}
 		return true;
+	}
+	
+	public int rankFileToSquare0x88(int rank, int file) {
+		return 16 * rank + file;
+	}
+	
+	public int square0x88ToFile(int square0x88) {
+		return square0x88 & 7;
+	}
+	
+	public int square0x88ToRank(int square0x88) {
+		return square0x88 >> 4;
 	}
 
 	public void printBoardPieceIndexes() {
