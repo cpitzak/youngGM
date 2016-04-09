@@ -27,8 +27,10 @@ public class MoveGenerator {
 			moves = getSingleMoves(piece, from, board.getBoard(), false, PieceLibrary.KNIGHT_MOVE_DELTA);
 		} else if (piece == PieceLibrary.WHITE_KING) {
 			moves = getSingleMoves(piece, from, board.getBoard(), true, PieceLibrary.KING_MOVE_DELTA);
+			addKingCastle(piece, from, board, moves);
 		} else if (piece == PieceLibrary.BLACK_KING) {
 			moves = getSingleMoves(piece, from, board.getBoard(), false, PieceLibrary.KING_MOVE_DELTA);
+			addKingCastle(piece, from, board, moves);
 		} else if (piece == PieceLibrary.WHITE_PAWN) {
 			moves = getPawnMoves(piece, from, board, true, PieceLibrary.PAWN_MOVE_DELTA,
 					PieceLibrary.PAWN_MOVE_ATTACK_DELTA);
@@ -39,6 +41,29 @@ public class MoveGenerator {
 			throw new IllegalArgumentException("ERROR: tried to find possible moves with an undefined piece");
 		}
 		return moves;
+	}
+	
+	private static void addKingCastle(Integer piece, int from, Board board, List<Move> moves) {
+		if (board.isWhiteCanCastleKingSide()) {
+			Move rookMove = new Move(from+3, from+1, PieceLibrary.WHITE_ROOK);
+			CastleMove move = new CastleMove(from, from+2, piece, rookMove);
+			moves.add(move);
+		}
+		if (board.isWhiteCanCastleQueenSide()) {
+			Move rookMove = new Move(from-4, from-1, PieceLibrary.WHITE_ROOK);
+			CastleMove move = new CastleMove(from, from-2, piece, rookMove);
+			moves.add(move);
+		}
+		if (board.isBlackCanCastleKingSide()) {
+			Move rookMove = new Move(from-3, from-1, PieceLibrary.BLACK_ROOK);
+			CastleMove move = new CastleMove(from, from-2, piece, rookMove);
+			moves.add(move);
+		}
+		if (board.isBlackCanCastleQueenSide()) {
+			Move rookMove = new Move(from+4, from+1, PieceLibrary.BLACK_ROOK);
+			CastleMove move = new CastleMove(from, from+2, piece, rookMove);
+			moves.add(move);
+		}
 	}
 
 	private static List<Move> getPawnMoves(Integer piece, int from, Board board, boolean isWhite, int[] delta,
@@ -63,19 +88,19 @@ public class MoveGenerator {
 			int leftTo = from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[0];
 			int rightTo = from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[1];
 			if ((leftTo & 0x88) == 0 && intBoard[leftTo] == null && PieceLibrary.isBlack(intBoard[from-1])) {
-				moves.add(new Move(from, leftTo, piece));
+				moves.add(new EnPassantMove(from, leftTo, piece, leftTo));
 			}
 			if ((rightTo & 0x88) == 0 && intBoard[rightTo] == null && PieceLibrary.isBlack(intBoard[from+1])) {
-				moves.add(new Move(from, rightTo, piece));
+				moves.add(new EnPassantMove(from, rightTo, piece, rightTo));
 			}
 		} else if (!isWhite && board.square0x88ToRank(from) == Board.RANK_4){
 			int rightTo = from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[0];
 			int leftTo = from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[1];
 			if ((rightTo & 0x88) == 0 && intBoard[rightTo] == null && PieceLibrary.isWhite(intBoard[from+1])) {
-				moves.add(new Move(from, rightTo, piece));
+				moves.add(new EnPassantMove(from, rightTo, piece, rightTo));
 			}
 			if ((leftTo & 0x88) == 0 && intBoard[leftTo] == null && PieceLibrary.isWhite(intBoard[from-1])) {
-				moves.add(new Move(from, leftTo, piece));
+				moves.add(new EnPassantMove(from, leftTo, piece, leftTo));
 			}
 		}
 		return moves;

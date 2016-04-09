@@ -11,7 +11,7 @@ public class Move {
 		this.to = to;
 		this.piece = piece;
 	}
-
+	
 	public int getFrom() {
 		return from;
 	}
@@ -21,5 +21,5 @@ public class Move {
 	public int getPiece() {
 		return piece;
 	}
-
+	
 }

@@ -273,6 +273,9 @@ public class Board extends Observable {
 	private boolean isValidMove(Move move) {
 		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), this);
 		for (Move m : moves) {
+			// if castle move
+			// else if en passant move
+			// else
 			if (m.getTo() == move.getTo()) {
 				return true;
 			}
@@ -293,6 +296,10 @@ public class Board extends Observable {
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 	// https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long
 	// Algebraic Notation (LAN)
+	// TODO: add parsing for 0-0 and 0-0-0
+	// 		 add move making for castle move
+	//       add move making for en passant move
+	//       add creation of proper move type (Move, CastleMove, EnPassantMove, PromotionMove) which will be passed into isValidMove
 	public boolean makeMove(String move) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
