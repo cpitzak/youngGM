@@ -339,7 +339,7 @@ public class Board extends Observable {
 			moveObj = MoveGenerator.getCastleMove(from, to, piece, this);
 			// invalid castle attempt
 			if (moveObj == null) {
-				logger.error("invalid move");
+				logger.error("invalid castle move");
 				return false;
 			} else {
 				CastleMove castleMove = (CastleMove) moveObj;
@@ -360,6 +360,22 @@ public class Board extends Observable {
 				isWhitesTurn = !isWhitesTurn;
 				return true;
 			}
+		} else if ((piece == PieceLibrary.WHITE_PAWN && Board.square0x88ToRank(from) == Board.RANK_5)
+				|| (piece == PieceLibrary.BLACK_PAWN && Board.square0x88ToRank(from) == Board.RANK_4)) {
+			moveObj = MoveGenerator.getEnPassantMove(from, to, piece, this);
+			// invalid enpassant attempt
+			if (moveObj == null) {
+				logger.error("invalid enpassant move");
+				return false;
+			} else {
+				EnPassantMove enpassantMove = (EnPassantMove) moveObj;
+				board[enpassantMove.getTo()] = board[enpassantMove.getFrom()];
+				board[enpassantMove.getFrom()] = null;
+				board[enpassantMove.getTargetSquare()] = null;
+				// update whos turn it is
+				isWhitesTurn = !isWhitesTurn;
+				return true;
+			}
 		}
 
 		if (promotion != null) {
@@ -369,7 +385,7 @@ public class Board extends Observable {
 				logger.error("malformed move");
 				return false;
 			}
-			
+
 			PromotionMove promotionMove = new PromotionMove(from, to, piece, promotionPiece);
 			if (!Validator.isValidMove(promotionMove, this)) {
 				logger.error("invalid promotion move");
@@ -409,7 +425,7 @@ public class Board extends Observable {
 		isWhitesTurn = !isWhitesTurn;
 		return true;
 	}
-	
+
 	public static boolean isOnBoard(int square0x88) {
 		return (square0x88 & 0x88) == 0;
 	}

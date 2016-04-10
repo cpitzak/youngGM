@@ -7,6 +7,30 @@ import interfaces.PieceLibrary;
 
 public class MoveGenerator {
 	
+	public static EnPassantMove getEnPassantMove(int from, int to, int piece, Board board) {
+		EnPassantMove move = null;
+		if (Validator.canEnPassant(from, to, piece, board)) {
+			if (piece == PieceLibrary.WHITE_PAWN) {
+				boolean left = (from + 15) == to;
+				boolean right = (from + 17) == to;
+				if (left) {
+					move = new EnPassantMove(from, to, piece, from - 1);
+				} else if (right) {
+					move = new EnPassantMove(from, to, piece, from + 1);
+				}
+			} else if (piece == PieceLibrary.BLACK_PAWN) {
+				boolean left = (from - 17) == to;
+				boolean right = (from - 15) == to;
+				if (left) {
+					move = new EnPassantMove(from, to, piece, from - 1);
+				} else if (right) {
+					move = new EnPassantMove(from, to, piece, from + 1);
+				}
+			}
+		}
+		return move;
+	}
+	
 	public static CastleMove getCastleMove(int from, int to, int piece, Board board) {
 		CastleMove move = null;
 		if (Validator.canCastle(from, to, piece, board)) {
@@ -111,7 +135,7 @@ public class MoveGenerator {
 			}
 		}
 		// en passant
-		if (isWhite && board.square0x88ToRank(from) == Board.RANK_5) {
+		if (isWhite && Board.square0x88ToRank(from) == Board.RANK_5) {
 			int leftTo = from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[0];
 			int rightTo = from + PieceLibrary.PAWN_MOVE_ATTACK_DELTA[1];
 			if ((leftTo & 0x88) == 0 && intBoard[leftTo] == null && PieceLibrary.isBlack(intBoard[from-1])) {
@@ -120,7 +144,7 @@ public class MoveGenerator {
 			if ((rightTo & 0x88) == 0 && intBoard[rightTo] == null && PieceLibrary.isBlack(intBoard[from+1])) {
 				moves.add(new EnPassantMove(from, rightTo, piece, rightTo));
 			}
-		} else if (!isWhite && board.square0x88ToRank(from) == Board.RANK_4){
+		} else if (!isWhite && Board.square0x88ToRank(from) == Board.RANK_4){
 			int rightTo = from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[0];
 			int leftTo = from - PieceLibrary.PAWN_MOVE_ATTACK_DELTA[1];
 			if ((rightTo & 0x88) == 0 && intBoard[rightTo] == null && PieceLibrary.isWhite(intBoard[from+1])) {

@@ -2,15 +2,16 @@ package model;
 
 public class EnPassantMove extends Move {
 	
-	private int clearSquare;
+	// the square that will be cleared
+	private int targetSquare;
 
-	public EnPassantMove(int from, int to, int piece, int clearSquare) {
+	public EnPassantMove(int from, int to, int piece, int targetSquare) {
 		super(from, to, piece);
-		this.clearSquare = clearSquare;
+		this.targetSquare = targetSquare;
 	}
 	
-	public int getClearSquare() {
-		return clearSquare;
+	public int getTargetSquare() {
+		return targetSquare;
 	}
 
 }

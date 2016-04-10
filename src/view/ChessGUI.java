@@ -278,10 +278,10 @@ public class ChessGUI implements Observer, ActionListener {
 		System.out.println("button pressed");
 		if (e.getSource() instanceof JButton) {
 			JButton selectedButton = (JButton) e.getSource();
-			Square square = getButtonSquareInChessBoardSquares(selectedButton);
+			Square selectedSquare = getButtonSquareInChessBoardSquares(selectedButton);
 			// selected a chess board square
-			if (square != null) {
-				String algebraicSquare = algebraicNotation[square.getCol()][square.getRow()];
+			if (selectedSquare != null) {
+				String algebraicSquare = algebraicNotation[selectedSquare.getCol()][selectedSquare.getRow()];
 				if (fromPieceButton == null) {
 					if (!controller.isSquareEmpty(algebraicSquare)) {
 						fromPieceButton = selectedButton;
@@ -289,50 +289,61 @@ public class ChessGUI implements Observer, ActionListener {
 					}
 				} else {
 					algebraicMove += algebraicSquare;
+					Square fromSquare = getButtonSquareInChessBoardSquares(fromPieceButton);
 					ImageIcon fromIcon = (ImageIcon) fromPieceButton.getIcon();
-					boolean promotionMove = false;
+					ImageIcon toIcon = (ImageIcon) selectedButton.getIcon();
+					boolean promotionMoveAttempt = false;
 					String promotionPiece = null;
-					if (square.getCol() == 0 && fromIcon.getDescription().equals(PAWN_WHITE)) {
+					JButton enPassantTargetButton = null;
+					// 5th rank
+					if (fromSquare.getCol() == 3 && fromIcon.getDescription().equals(PAWN_WHITE)
+							&& toIcon.getDescription().isEmpty()) {
+						// going left
+						if (fromSquare.getRow() - 1 == selectedSquare.getRow()) {
+							JButton temp = chessBoardSquares[fromSquare.getRow() - 1][fromSquare.getCol()];
+							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+							if (targetIcon.getDescription().equals(PAWN_BLACK)) {
+								enPassantTargetButton = temp;
+							}
+						} else if (fromSquare.getRow() + 1 == selectedSquare.getRow()) {
+							// going right
+							JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
+							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+							if (targetIcon.getDescription().equals(PAWN_BLACK)) {
+								enPassantTargetButton = temp;
+							}
+						}
+					} else if (fromSquare.getCol() == 4 && fromIcon.getDescription().equals(PAWN_BLACK)
+							&& toIcon.getDescription().isEmpty()) {
+						// going left
+						if (fromSquare.getRow() - 1 == selectedSquare.getRow()) {
+							JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
+							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+							if (targetIcon.getDescription().equals(PAWN_WHITE)) {
+								enPassantTargetButton = temp;
+							}
+						} else if (fromSquare.getRow() + 1 == selectedSquare.getRow()) {
+							// going right
+							JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
+							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+							if (targetIcon.getDescription().equals(PAWN_WHITE)) {
+								enPassantTargetButton = temp;
+							}
+						}
+					} else if (selectedSquare.getCol() == 0 && fromIcon.getDescription().equals(PAWN_WHITE)) {
 						promotionPiece = "Q";
 						algebraicMove += promotionPiece;
-						promotionMove = true;
-					} else if (square.getCol() == 7 && fromIcon.getDescription().equals(PAWN_BLACK)) {
+						promotionMoveAttempt = true;
+					} else if (selectedSquare.getCol() == 7 && fromIcon.getDescription().equals(PAWN_BLACK)) {
 						promotionPiece = "q";
 						algebraicMove += promotionPiece;
-						promotionMove = true;
+						promotionMoveAttempt = true;
 					}
 					System.out.println("move: " + algebraicMove);
 					boolean didMove = controller.makeMove(algebraicMove);
 					if (didMove) {
-						if (isCastleAttemptWhiteKingSide()) {
-							chessBoardSquares[5][7].setIcon(chessBoardSquares[7][7].getIcon());
-							chessBoardSquares[7][7].setIcon(transparentIcon);
-						} else if (isCastleAttemptBlackKingSide()) {
-							chessBoardSquares[5][0].setIcon(chessBoardSquares[7][0].getIcon());
-							chessBoardSquares[7][0].setIcon(transparentIcon);
-						} else if (isCastleAttemptWhiteQueenSide()) {
-							chessBoardSquares[3][7].setIcon(chessBoardSquares[0][7].getIcon());
-							chessBoardSquares[0][7].setIcon(transparentIcon);
-						} else if (isCastleAttemptBlackQueenSide()) {
-							chessBoardSquares[3][0].setIcon(chessBoardSquares[0][0].getIcon());
-							chessBoardSquares[0][0].setIcon(transparentIcon);
-						}
-						
-						if (promotionMove) {
-							if (promotionPiece.equals("Q")) {
-								ImageIcon queenIcon = new ImageIcon(chessPieceImages[WHITE][QUEEN]);
-								queenIcon.setDescription(QUEEN_WHITE);
-								selectedButton.setIcon(queenIcon);
-							} else if (promotionPiece.equals("q")) {
-								ImageIcon queenIcon = new ImageIcon(chessPieceImages[BLACK][QUEEN]);
-								queenIcon.setDescription(QUEEN_BLACK);
-								selectedButton.setIcon(queenIcon);
-							} else {
-								throw new IllegalStateException("invalid promotion state");
-							}
-						} else {
-							selectedButton.setIcon(fromPieceButton.getIcon());
-						}
+						castleMove();
+						pawnMove(selectedButton, promotionMoveAttempt, promotionPiece, enPassantTargetButton);
 						fromPieceButton.setIcon(transparentIcon);
 						if (controller.isWhiteTurn()) {
 							message.setText("White's Turn");
@@ -344,6 +355,45 @@ public class ChessGUI implements Observer, ActionListener {
 					algebraicMove = "";
 				}
 			}
+		}
+	}
+
+	private void pawnMove(JButton selectedButton, boolean promotionMove, String promotionPiece,
+			JButton enPassantTargetButton) {
+		if (promotionMove) {
+			if (promotionPiece.equals("Q")) {
+				ImageIcon queenIcon = new ImageIcon(chessPieceImages[WHITE][QUEEN]);
+				queenIcon.setDescription(QUEEN_WHITE);
+				selectedButton.setIcon(queenIcon);
+			} else if (promotionPiece.equals("q")) {
+				ImageIcon queenIcon = new ImageIcon(chessPieceImages[BLACK][QUEEN]);
+				queenIcon.setDescription(QUEEN_BLACK);
+				selectedButton.setIcon(queenIcon);
+			} else {
+				throw new IllegalStateException("invalid promotion state");
+			}
+		} else if (enPassantTargetButton != null) {
+			selectedButton.setIcon(fromPieceButton.getIcon());
+			enPassantTargetButton.setIcon(transparentIcon);
+			((ImageIcon) enPassantTargetButton.getIcon()).setDescription("");
+		} else {
+			selectedButton.setIcon(fromPieceButton.getIcon());
+		}
+	}
+
+	private void castleMove() {
+		if (isCastleAttemptWhiteKingSide()) {
+			chessBoardSquares[5][7].setIcon(chessBoardSquares[7][7].getIcon());
+			chessBoardSquares[7][7].setIcon(transparentIcon);
+		} else if (isCastleAttemptBlackKingSide()) {
+			chessBoardSquares[5][0].setIcon(chessBoardSquares[7][0].getIcon());
+			chessBoardSquares[7][0].setIcon(transparentIcon);
+		} else if (isCastleAttemptWhiteQueenSide()) {
+			chessBoardSquares[3][7].setIcon(chessBoardSquares[0][7].getIcon());
+			chessBoardSquares[0][7].setIcon(transparentIcon);
+		} else if (isCastleAttemptBlackQueenSide()) {
+			chessBoardSquares[3][0].setIcon(chessBoardSquares[0][0].getIcon());
+			chessBoardSquares[0][0].setIcon(transparentIcon);
 		}
 	}
 
