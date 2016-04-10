@@ -30,5 +30,5 @@ public class Controller {
 	public boolean isSquareEmpty(String algebraicSquare) {
 		return board.isSquareEmpty(algebraicSquare);
 	}
-
+	
 }

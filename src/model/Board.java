@@ -334,6 +334,24 @@ public class Board extends Observable {
 			if (moveObj == null) {
 				logger.error("invalid move");
 				return false;
+			} else {
+				CastleMove castleMove = (CastleMove) moveObj;
+				board[castleMove.getTo()] = board[castleMove.getFrom()];
+				board[castleMove.getFrom()] = null;
+				board[castleMove.getRookMove().getTo()] = board[castleMove.getRookMove().getFrom()];
+				board[castleMove.getRookMove().getFrom()] = null;
+				if (piece == PieceLibrary.WHITE_KING) {
+					this.whiteCanCastleKingSide = false;
+					this.whiteCanCastleQueenSide = false;
+				} else if (piece == PieceLibrary.BLACK_KING) {
+					this.blackCanCastleKingSide = false;
+					this.blackCanCastleQueenSide = false;
+				} else {
+					throw new IllegalStateException("castle rights are in an invalid state");
+				}
+				// update whos turn it is
+				isWhitesTurn = !isWhitesTurn;
+				return true;
 			}
 		}
 		
@@ -363,6 +381,21 @@ public class Board extends Observable {
 			}
 			board[to] = board[from];
 			board[from] = null;
+			if (piece == PieceLibrary.WHITE_KING) {
+				this.whiteCanCastleKingSide = false;
+				this.whiteCanCastleQueenSide = false;
+			} else if (piece == PieceLibrary.BLACK_KING) {
+				this.blackCanCastleKingSide = false;
+				this.blackCanCastleQueenSide = false;
+			} else if (piece == PieceLibrary.WHITE_ROOK && from == H1) {
+				this.whiteCanCastleKingSide = false;
+			} else if (piece == PieceLibrary.WHITE_ROOK && from == A1) {
+				this.whiteCanCastleQueenSide = false;
+			} else if (piece == PieceLibrary.BLACK_ROOK && from == H8) {
+				this.blackCanCastleKingSide = false;
+			} else if (piece == PieceLibrary.BLACK_ROOK && from == A8) {
+				this.blackCanCastleQueenSide = false;
+			}
 		} else {
 			logger.error(
 					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");

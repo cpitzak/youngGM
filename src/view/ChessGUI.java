@@ -147,7 +147,7 @@ public class ChessGUI implements Observer, ActionListener {
 
 		Color greenSquare = new Color(118, 150, 86);
 		Border squareBorder = new LineBorder(Color.BLACK, 1);
-		
+
 		// create the chess board squares
 		Insets buttonMargin = new Insets(0, 0, 0, 0);
 		for (int i = 0; i < chessBoardSquares.length; i++) {
@@ -293,6 +293,19 @@ public class ChessGUI implements Observer, ActionListener {
 
 					boolean didMove = controller.makeMove(algebraicMove);
 					if (didMove) {
+						if (isCastleAttemptWhiteKingSide()) {
+							chessBoardSquares[5][7].setIcon(chessBoardSquares[7][7].getIcon());
+							chessBoardSquares[7][7].setIcon(transparentIcon);
+						} else if (isCastleAttemptBlackKingSide()) {
+							chessBoardSquares[5][0].setIcon(chessBoardSquares[7][0].getIcon());
+							chessBoardSquares[7][0].setIcon(transparentIcon);
+						} else if (isCastleAttemptWhiteQueenSide()) {
+							chessBoardSquares[3][7].setIcon(chessBoardSquares[0][7].getIcon());
+							chessBoardSquares[0][7].setIcon(transparentIcon);
+						} else if (isCastleAttemptBlackQueenSide()) {
+							chessBoardSquares[3][0].setIcon(chessBoardSquares[0][0].getIcon());
+							chessBoardSquares[0][0].setIcon(transparentIcon);
+						}
 						selectedButton.setIcon(fromPieceButton.getIcon());
 						fromPieceButton.setIcon(transparentIcon);
 					}
@@ -301,6 +314,50 @@ public class ChessGUI implements Observer, ActionListener {
 				}
 			}
 		}
+	}
+
+	private boolean isCastleAttemptWhiteKingSide() {
+		if (algebraicMove.length() == 4) {
+			String from = algebraicMove.substring(0, 2);
+			String to = algebraicMove.substring(2, 4);
+			if (from.equals("e1") && to.equals("g1")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isCastleAttemptWhiteQueenSide() {
+		if (algebraicMove.length() == 4) {
+			String from = algebraicMove.substring(0, 2);
+			String to = algebraicMove.substring(2, 4);
+			if (from.equals("e1") && to.equals("c1")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isCastleAttemptBlackKingSide() {
+		if (algebraicMove.length() == 4) {
+			String from = algebraicMove.substring(0, 2);
+			String to = algebraicMove.substring(2, 4);
+			if (from.equals("e8") && to.equals("g8")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isCastleAttemptBlackQueenSide() {
+		if (algebraicMove.length() == 4) {
+			String from = algebraicMove.substring(0, 2);
+			String to = algebraicMove.substring(2, 4);
+			if (from.equals("e8") && to.equals("c8")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
