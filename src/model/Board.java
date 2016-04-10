@@ -289,10 +289,6 @@ public class Board extends Observable {
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 	// https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long
 	// Algebraic Notation (LAN)
-	// TODO: add parsing for 0-0 and 0-0-0
-	// add move making for en passant move
-	// add creation of move types (Move, EnPassantMove,
-	// PromotionMove) which will be passed into isValidMove
 	public boolean makeMove(String moveStr) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
