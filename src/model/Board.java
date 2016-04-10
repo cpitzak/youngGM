@@ -316,6 +316,14 @@ public class Board extends Observable {
 			logger.error("malformed move");
 			return false;
 		}
+		
+		if (PieceLibrary.isWhite(board[from]) && !isWhitesTurn) {
+			logger.error("it's black's turn");
+			return false;
+		} else if (PieceLibrary.isBlack(board[from]) && isWhitesTurn) {
+			logger.error("it's white's turn");
+			return false;
+		}
 
 		String promotion = null;
 		if (moveStr.length() == 5) {

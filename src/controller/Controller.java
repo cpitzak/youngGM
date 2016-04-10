@@ -31,4 +31,8 @@ public class Controller {
 		return board.isSquareEmpty(algebraicSquare);
 	}
 	
+	public boolean isWhiteTurn() {
+		return board.isWhitesTurn();
+	}
+	
 }

@@ -308,6 +308,11 @@ public class ChessGUI implements Observer, ActionListener {
 						}
 						selectedButton.setIcon(fromPieceButton.getIcon());
 						fromPieceButton.setIcon(transparentIcon);
+						if (controller.isWhiteTurn()) {
+							message.setText("White's Turn");
+						} else {
+							message.setText("Black's Turn");
+						}
 					}
 					fromPieceButton = null;
 					algebraicMove = "";
