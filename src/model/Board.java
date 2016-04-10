@@ -59,7 +59,7 @@ import interfaces.SquareLibrary;
 public class Board extends Observable {
 
 	private final static Logger logger = Logger.getLogger(Board.class);
-	
+
 	public static final int RANK_1 = 0;
 	public static final int RANK_2 = 1;
 	public static final int RANK_3 = 2;
@@ -68,7 +68,7 @@ public class Board extends Observable {
 	public static final int RANK_6 = 5;
 	public static final int RANK_7 = 6;
 	public static final int RANK_8 = 7;
-	
+
 	public static final int FILE_1 = 0;
 	public static final int FILE_2 = 1;
 	public static final int FILE_3 = 2;
@@ -78,9 +78,16 @@ public class Board extends Observable {
 	public static final int FILE_7 = 6;
 	public static final int FILE_8 = 7;
 
+	public static final int A1 = 0, B1 = 1, C1 = 2, D1 = 3, E1 = 4, F1 = 5, G1 = 6, H1 = 7, A2 = 16, B2 = 17, C2 = 18,
+			D2 = 19, E2 = 20, F2 = 21, G2 = 22, H2 = 23, A3 = 32, B3 = 33, C3 = 34, D3 = 35, E3 = 36, F3 = 37, G3 = 38,
+			H3 = 39, A4 = 48, B4 = 49, C4 = 50, D4 = 51, E4 = 52, F4 = 53, G4 = 54, H4 = 55, A5 = 64, B5 = 65, C5 = 66,
+			D5 = 67, E5 = 68, F5 = 69, G5 = 70, H5 = 71, A6 = 80, B6 = 81, C6 = 82, D6 = 83, E6 = 84, F6 = 85, G6 = 86,
+			H6 = 87, A7 = 96, B7 = 97, C7 = 98, D7 = 99, E7 = 100, F7 = 101, G7 = 102, H7 = 103, A8 = 112, B8 = 113,
+			C8 = 114, D8 = 115, E8 = 116, F8 = 117, G8 = 118, H8 = 119;
+
+	private static final int[] A_FILE = { A8, A7, A6, A5, A4, A3, A2, A1 };
+
 	private Integer[] board;
-	private static final int[] A_FILE = { 112, 96, 80, 64, 48, 32, 16, 0 };
-	private static final int[] H_FILE = { 119, 103, 87, 71, 55, 39, 23, 7 };
 	private static final int RANK_LENGTH = 8;
 	private boolean isWhitesTurn;
 	private boolean whiteCanCastleKingSide;
@@ -113,29 +120,29 @@ public class Board extends Observable {
 	}
 
 	private void setupBoard() {
-		board[0] = PieceLibrary.WHITE_ROOK;
-		board[1] = PieceLibrary.WHITE_KNIGHT;
-		board[2] = PieceLibrary.WHITE_BISHOP;
-		board[3] = PieceLibrary.WHITE_QUEEN;
-		board[4] = PieceLibrary.WHITE_KING;
-		board[5] = PieceLibrary.WHITE_BISHOP;
-		board[6] = PieceLibrary.WHITE_KNIGHT;
-		board[7] = PieceLibrary.WHITE_ROOK;
+		board[A1] = PieceLibrary.WHITE_ROOK;
+		board[B1] = PieceLibrary.WHITE_KNIGHT;
+		board[C1] = PieceLibrary.WHITE_BISHOP;
+		board[D1] = PieceLibrary.WHITE_QUEEN;
+		board[E1] = PieceLibrary.WHITE_KING;
+		board[F1] = PieceLibrary.WHITE_BISHOP;
+		board[G1] = PieceLibrary.WHITE_KNIGHT;
+		board[H1] = PieceLibrary.WHITE_ROOK;
 
-		for (int i = A_FILE[6]; i <= H_FILE[6]; i++) {
+		for (int i = A2; i <= H2; i++) {
 			board[i] = PieceLibrary.WHITE_PAWN;
 		}
 
-		board[112] = PieceLibrary.BLACK_ROOK;
-		board[113] = PieceLibrary.BLACK_KNIGHT;
-		board[114] = PieceLibrary.BLACK_BISHOP;
-		board[115] = PieceLibrary.BLACK_QUEEN;
-		board[116] = PieceLibrary.BLACK_KING;
-		board[117] = PieceLibrary.BLACK_BISHOP;
-		board[118] = PieceLibrary.BLACK_KNIGHT;
-		board[119] = PieceLibrary.BLACK_ROOK;
+		board[A8] = PieceLibrary.BLACK_ROOK;
+		board[B8] = PieceLibrary.BLACK_KNIGHT;
+		board[C8] = PieceLibrary.BLACK_BISHOP;
+		board[D8] = PieceLibrary.BLACK_QUEEN;
+		board[E8] = PieceLibrary.BLACK_KING;
+		board[F8] = PieceLibrary.BLACK_BISHOP;
+		board[G8] = PieceLibrary.BLACK_KNIGHT;
+		board[H8] = PieceLibrary.BLACK_ROOK;
 
-		for (int i = A_FILE[1]; i <= H_FILE[1]; i++) {
+		for (int i = A7; i <= H7; i++) {
 			board[i] = PieceLibrary.BLACK_PAWN;
 		}
 	}
@@ -143,7 +150,7 @@ public class Board extends Observable {
 	public Integer[] getBoard() {
 		return board;
 	}
-	
+
 	public void clear() {
 		board = new Integer[128];
 	}
@@ -269,20 +276,95 @@ public class Board extends Observable {
 		}
 		return true;
 	}
-	
+
 	private boolean isValidMove(Move move) {
-		List<Move>  moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), this);
+		boolean isValid = false;
+		List<Move> moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), this);
 		for (Move m : moves) {
-			// if castle move
-			// else if en passant move
-			// else
-			if (m.getTo() == move.getTo()) {
-				return true;
+			if (m instanceof CastleMove && move instanceof CastleMove) {
+				CastleMove castleMove = (CastleMove) move;
+				if (canCastle(castleMove)) {
+					isValid = true;
+					break;
+				}
+			} else if (m instanceof EnPassantMove) {
+
+			} else if (m.getTo() == move.getTo()) {
+				isValid = true;
+				break;
 			}
 		}
-		return false;
+		return isValid;
 	}
-	
+
+	private CastleMove getCastleMove(int from, int to, int piece) {
+		CastleMove move = null;
+		if (canCastle(from, to, piece)) {
+			if (piece == PieceLibrary.WHITE_KING) {
+				if (to == G1) { // king side
+					Move rookMove = new Move(H1, F1, PieceLibrary.WHITE_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				} else if (to == C1) { // queen side
+					Move rookMove = new Move(A1, D1, PieceLibrary.WHITE_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				}
+			} else if (piece == PieceLibrary.BLACK_KING) {
+				if (to == G8) { // king side
+					Move rookMove = new Move(H8, F8, PieceLibrary.BLACK_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				} else if (to == C8) { // queen side
+					Move rookMove = new Move(A8, D8, PieceLibrary.BLACK_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				}
+			}
+		}
+		return move;
+	}
+
+	private boolean canCastle(int from, int to, int piece) {
+		boolean canCastle = false;
+		if (piece == PieceLibrary.WHITE_KING) {
+			if (this.whiteCanCastleKingSide && from == E1 && to == G1 && board[E1] == PieceLibrary.WHITE_KING
+					&& board[H1] == PieceLibrary.WHITE_ROOK && board[F1] == null && board[G1] == null) {
+				canCastle = true;
+			} else if (this.whiteCanCastleQueenSide && from == E1 && to == C1 && board[E1] == PieceLibrary.WHITE_KING
+					&& board[A1] == PieceLibrary.WHITE_ROOK && board[B1] == null && board[C1] == null
+					&& board[D1] == null) {
+				canCastle = true;
+			}
+		} else if (piece == PieceLibrary.BLACK_KING) {
+			if (this.blackCanCastleKingSide && from == E8 && to == G8 && board[E8] == PieceLibrary.BLACK_KING
+					&& board[H8] == PieceLibrary.BLACK_ROOK && board[F8] == null && board[G8] == null) {
+				canCastle = true;
+			} else if (this.blackCanCastleQueenSide && from == E8 && to == C8 && board[E8] == PieceLibrary.BLACK_KING
+					&& board[A8] == PieceLibrary.BLACK_ROOK && board[B8] == null && board[C8] == null
+					&& board[D8] == null) {
+				canCastle = true;
+			}
+		}
+		return canCastle;
+	}
+
+	private boolean canCastle(CastleMove move) {
+		boolean canCastle = false;
+		if (move.isKingSideWhite() && this.whiteCanCastleKingSide && board[E1] == PieceLibrary.WHITE_KING
+				&& board[H1] == PieceLibrary.WHITE_ROOK && board[F1] == null && board[G1] == null) {
+			canCastle = true;
+		} else if (move.isKingSideBlack() && this.blackCanCastleKingSide && board[E8] == PieceLibrary.BLACK_KING
+				&& board[H8] == PieceLibrary.BLACK_ROOK && board[F8] == null && board[G8] == null) {
+			canCastle = true;
+		} else if (move.isQueenSideWhite() && this.whiteCanCastleQueenSide && board[E1] == PieceLibrary.WHITE_KING
+				&& board[A1] == PieceLibrary.WHITE_ROOK && board[B1] == null && board[C1] == null
+				&& board[D1] == null) {
+			canCastle = true;
+		} else if (move.isQueenSideBlack() && this.blackCanCastleQueenSide && board[E8] == PieceLibrary.BLACK_KING
+				&& board[A8] == PieceLibrary.BLACK_ROOK && board[B8] == null && board[C8] == null
+				&& board[D8] == null) {
+			canCastle = true;
+		}
+		return canCastle;
+	}
+
 	public boolean isSquareEmpty(String algebraicSquare) {
 		Integer squareInt = SquareLibrary.stringToIntMap.get(algebraicSquare);
 		if (squareInt == null) {
@@ -297,76 +379,97 @@ public class Board extends Observable {
 	// https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long
 	// Algebraic Notation (LAN)
 	// TODO: add parsing for 0-0 and 0-0-0
-	// 		 add move making for castle move
-	//       add move making for en passant move
-	//       add creation of proper move type (Move, CastleMove, EnPassantMove, PromotionMove) which will be passed into isValidMove
-	public boolean makeMove(String move) {
+	// add move making for en passant move
+	// add creation of move types (Move, EnPassantMove,
+	// PromotionMove) which will be passed into isValidMove
+	public boolean makeMove(String moveStr) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
-		if (move == null || move.trim().length() < MIN_MOVE_LENGTH || move.trim().length() > MAX_MOVE_LENGTH) {
+		if (moveStr == null || moveStr.trim().length() < MIN_MOVE_LENGTH || moveStr.trim().length() > MAX_MOVE_LENGTH) {
 			logger.error("Invalid move sent to makeMove");
 			return false;
 		}
-		move = move.trim();
-		if (move.length() != 4 && move.length() != 5) {
+		moveStr = moveStr.trim();
+		if (moveStr.length() != 4 && moveStr.length() != 5) {
 			logger.error(
 					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
 			return false;
 		}
-		String fromSquare = move.substring(0, 2).toLowerCase();
-		String toSquare = move.substring(2, 4).trim().toLowerCase();
-		
-		Integer squareFromInt = SquareLibrary.stringToIntMap.get(fromSquare);
-		Integer squareToInt = SquareLibrary.stringToIntMap.get(toSquare);
-		
-		if (squareFromInt == null || squareToInt == null) {
+		String fromSquare = moveStr.substring(0, 2).toLowerCase();
+		String toSquare = moveStr.substring(2, 4).trim().toLowerCase();
+
+		Integer from = SquareLibrary.stringToIntMap.get(fromSquare);
+		Integer to = SquareLibrary.stringToIntMap.get(toSquare);
+
+		if (from == null || to == null) {
 			logger.error("malformed move");
 			return false;
 		}
-		
+
 		String promotion = null;
-		if (move.length() == 5) {
-			promotion = move.substring(4);
+		if (moveStr.length() == 5) {
+			promotion = moveStr.substring(4);
+		}
+
+		int piece = board[from];
+
+		
+		Move moveObj = null;
+		// king trying to castle
+		if ((from == E1 && to == G1) || (from == E1 && to == C1) || (from == E8 && to == G8)
+				|| (from == E8 && to == C8)) {
+			moveObj = getCastleMove(from, to, piece);
+			// invalid castle attempt
+			if (moveObj == null) {
+				logger.error("invalid move");
+				return false;
+			}
 		}
 		
-		Move moveObj = new Move(squareFromInt, squareToInt, board[squareFromInt]);
+		// wasn't trying to castle
+		if (moveObj == null) {
+			moveObj = new Move(from, to, piece);
+		}
+
 		if (!isValidMove(moveObj)) {
 			logger.error("invalid move");
 			return false;
 		}
-		
+
 		if (promotion != null) {
 			// promotion
 			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
-			if (promotionPiece == null || squareToInt == null || squareFromInt == null) {
+			if (promotionPiece == null || to == null || from == null) {
 				logger.error("malformed move");
 				return false;
 			}
-			board[squareToInt] = promotionPiece;
-			board[squareFromInt] = null;
+			board[to] = promotionPiece;
+			board[from] = null;
 		} else if (toSquare.length() == 2) {
-			if (squareFromInt == null || squareToInt == null) {
+			if (from == null || to == null) {
 				logger.error("malformed move");
 				return false;
 			}
-			board[squareToInt] = board[squareFromInt];
-			board[squareFromInt] = null;
+			board[to] = board[from];
+			board[from] = null;
 		} else {
 			logger.error(
 					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
 			return false;
 		}
+		// update whos turn it is
+		isWhitesTurn = !isWhitesTurn;
 		return true;
 	}
-	
+
 	public int rankFileToSquare0x88(int rank, int file) {
 		return 16 * rank + file;
 	}
-	
+
 	public int square0x88ToFile(int square0x88) {
 		return square0x88 & 7;
 	}
-	
+
 	public int square0x88ToRank(int square0x88) {
 		return square0x88 >> 4;
 	}

@@ -44,25 +44,28 @@ public class MoveGenerator {
 	}
 	
 	private static void addKingCastle(Integer piece, int from, Board board, List<Move> moves) {
-		if (board.isWhiteCanCastleKingSide()) {
-			Move rookMove = new Move(from+3, from+1, PieceLibrary.WHITE_ROOK);
-			CastleMove move = new CastleMove(from, from+2, piece, rookMove);
-			moves.add(move);
-		}
-		if (board.isWhiteCanCastleQueenSide()) {
-			Move rookMove = new Move(from-4, from-1, PieceLibrary.WHITE_ROOK);
-			CastleMove move = new CastleMove(from, from-2, piece, rookMove);
-			moves.add(move);
-		}
-		if (board.isBlackCanCastleKingSide()) {
-			Move rookMove = new Move(from-3, from-1, PieceLibrary.BLACK_ROOK);
-			CastleMove move = new CastleMove(from, from-2, piece, rookMove);
-			moves.add(move);
-		}
-		if (board.isBlackCanCastleQueenSide()) {
-			Move rookMove = new Move(from+4, from+1, PieceLibrary.BLACK_ROOK);
-			CastleMove move = new CastleMove(from, from+2, piece, rookMove);
-			moves.add(move);
+		if (piece == PieceLibrary.WHITE_KING && from == Board.E1) {
+			if (board.isWhiteCanCastleKingSide()) {
+				Move rookMove = new Move(from+3, from+1, PieceLibrary.WHITE_ROOK);
+				CastleMove move = new CastleMove(from, from+2, piece, rookMove);
+				moves.add(move);
+			}
+			if (board.isWhiteCanCastleQueenSide()) {
+				Move rookMove = new Move(from-4, from-1, PieceLibrary.WHITE_ROOK);
+				CastleMove move = new CastleMove(from, from-2, piece, rookMove);
+				moves.add(move);
+			}
+		} else if (piece == PieceLibrary.BLACK_KING && from == Board.E8) {
+			if (board.isBlackCanCastleKingSide()) {
+				Move rookMove = new Move(from+3, from+1, PieceLibrary.BLACK_ROOK);
+				CastleMove move = new CastleMove(from, from+2, piece, rookMove);
+				moves.add(move);
+			}
+			if (board.isBlackCanCastleQueenSide()) {
+				Move rookMove = new Move(from-4, from-1, PieceLibrary.BLACK_ROOK);
+				CastleMove move = new CastleMove(from, from-2, piece, rookMove);
+				moves.add(move);
+			}
 		}
 	}
 

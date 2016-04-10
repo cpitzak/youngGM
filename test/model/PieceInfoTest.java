@@ -113,7 +113,7 @@ public class PieceInfoTest {
 	public void kingMoves() {
 		int location = 67;
 		List<Move> possibleMoves = MoveGenerator.getPossibleMoves(PieceLibrary.WHITE_KING, location, board);
-		assertThat(possibleMoves.size(), is(8));
+		assertThat(possibleMoves.size(), is(12));
 
 		assertThat(possibleMoves.get(0).getFrom(), is(location));
 		assertThat(possibleMoves.get(0).getTo(), is(66));
