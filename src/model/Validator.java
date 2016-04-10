@@ -17,7 +17,13 @@ public class Validator {
 					break;
 				}
 			} else if (m instanceof EnPassantMove) {
-
+				EnPassantMove enPassantMove = (EnPassantMove) move;
+				if (canEnPassant(enPassantMove, board)) {
+					if (m.getTo() == enPassantMove.getTo()) {
+						isValid = true;
+						break;
+					}
+				}
 			} else if (m instanceof PromotionMove) {
 				PromotionMove promotionMove = (PromotionMove) move;
 				if (canPromote(promotionMove, board)) {
@@ -46,6 +52,10 @@ public class Validator {
 			canPromote = true;
 		}
 		return canPromote;
+	}
+	
+	public static boolean canEnPassant(EnPassantMove move, Board board) {
+		return canCastle(move.getFrom(), move.getTo(), move.getPiece(), board);
 	}
 
 	public static boolean canEnPassant(int from, int to, int piece, Board board) {

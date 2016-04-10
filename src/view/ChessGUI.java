@@ -292,58 +292,14 @@ public class ChessGUI implements Observer, ActionListener {
 					Square fromSquare = getButtonSquareInChessBoardSquares(fromPieceButton);
 					ImageIcon fromIcon = (ImageIcon) fromPieceButton.getIcon();
 					ImageIcon toIcon = (ImageIcon) selectedButton.getIcon();
-					boolean promotionMoveAttempt = false;
-					String promotionPiece = null;
-					JButton enPassantTargetButton = null;
-					// 5th rank
-					if (fromSquare.getCol() == 3 && fromIcon.getDescription().equals(PAWN_WHITE)
-							&& toIcon.getDescription().isEmpty()) {
-						// going left
-						if (fromSquare.getRow() - 1 == selectedSquare.getRow()) {
-							JButton temp = chessBoardSquares[fromSquare.getRow() - 1][fromSquare.getCol()];
-							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
-							if (targetIcon.getDescription().equals(PAWN_BLACK)) {
-								enPassantTargetButton = temp;
-							}
-						} else if (fromSquare.getRow() + 1 == selectedSquare.getRow()) {
-							// going right
-							JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
-							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
-							if (targetIcon.getDescription().equals(PAWN_BLACK)) {
-								enPassantTargetButton = temp;
-							}
-						}
-					} else if (fromSquare.getCol() == 4 && fromIcon.getDescription().equals(PAWN_BLACK)
-							&& toIcon.getDescription().isEmpty()) {
-						// going left
-						if (fromSquare.getRow() - 1 == selectedSquare.getRow()) {
-							JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
-							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
-							if (targetIcon.getDescription().equals(PAWN_WHITE)) {
-								enPassantTargetButton = temp;
-							}
-						} else if (fromSquare.getRow() + 1 == selectedSquare.getRow()) {
-							// going right
-							JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
-							ImageIcon targetIcon = (ImageIcon) temp.getIcon();
-							if (targetIcon.getDescription().equals(PAWN_WHITE)) {
-								enPassantTargetButton = temp;
-							}
-						}
-					} else if (selectedSquare.getCol() == 0 && fromIcon.getDescription().equals(PAWN_WHITE)) {
-						promotionPiece = "Q";
-						algebraicMove += promotionPiece;
-						promotionMoveAttempt = true;
-					} else if (selectedSquare.getCol() == 7 && fromIcon.getDescription().equals(PAWN_BLACK)) {
-						promotionPiece = "q";
-						algebraicMove += promotionPiece;
-						promotionMoveAttempt = true;
-					}
+					JButton enPassantTargetButton = getEnPassantTargetButton(selectedSquare, fromSquare, fromIcon,
+							toIcon);
+					String promotionPiece = getPromotionPiece(selectedSquare, fromIcon);
 					System.out.println("move: " + algebraicMove);
 					boolean didMove = controller.makeMove(algebraicMove);
 					if (didMove) {
 						castleMove();
-						pawnMove(selectedButton, promotionMoveAttempt, promotionPiece, enPassantTargetButton);
+						pawnMove(selectedButton, promotionPiece, enPassantTargetButton);
 						fromPieceButton.setIcon(transparentIcon);
 						if (controller.isWhiteTurn()) {
 							message.setText("White's Turn");
@@ -358,9 +314,61 @@ public class ChessGUI implements Observer, ActionListener {
 		}
 	}
 
-	private void pawnMove(JButton selectedButton, boolean promotionMove, String promotionPiece,
-			JButton enPassantTargetButton) {
-		if (promotionMove) {
+	private String getPromotionPiece(Square selectedSquare, ImageIcon fromIcon) {
+		String promotionPiece = null;
+		if (selectedSquare.getCol() == 0 && fromIcon.getDescription().equals(PAWN_WHITE)) {
+			promotionPiece = "Q";
+			algebraicMove += promotionPiece;
+		} else if (selectedSquare.getCol() == 7 && fromIcon.getDescription().equals(PAWN_BLACK)) {
+			promotionPiece = "q";
+			algebraicMove += promotionPiece;
+		}
+		return promotionPiece;
+	}
+
+	private JButton getEnPassantTargetButton(Square selectedSquare, Square fromSquare, ImageIcon fromIcon,
+			ImageIcon toIcon) {
+		JButton enPassantTargetButton = null;
+		if (fromSquare.getCol() == 3 && fromIcon.getDescription().equals(PAWN_WHITE)
+				&& toIcon.getDescription().isEmpty()) {
+			// going left
+			if (fromSquare.getRow() - 1 == selectedSquare.getRow()) {
+				JButton temp = chessBoardSquares[fromSquare.getRow() - 1][fromSquare.getCol()];
+				ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+				if (targetIcon.getDescription().equals(PAWN_BLACK)) {
+					enPassantTargetButton = temp;
+				}
+			} else if (fromSquare.getRow() + 1 == selectedSquare.getRow()) {
+				// going right
+				JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
+				ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+				if (targetIcon.getDescription().equals(PAWN_BLACK)) {
+					enPassantTargetButton = temp;
+				}
+			}
+		} else if (fromSquare.getCol() == 4 && fromIcon.getDescription().equals(PAWN_BLACK)
+				&& toIcon.getDescription().isEmpty()) {
+			// going left
+			if (fromSquare.getRow() - 1 == selectedSquare.getRow()) {
+				JButton temp = chessBoardSquares[fromSquare.getRow() - 1][fromSquare.getCol()];
+				ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+				if (targetIcon.getDescription().equals(PAWN_WHITE)) {
+					enPassantTargetButton = temp;
+				}
+			} else if (fromSquare.getRow() + 1 == selectedSquare.getRow()) {
+				// going right
+				JButton temp = chessBoardSquares[fromSquare.getRow() + 1][fromSquare.getCol()];
+				ImageIcon targetIcon = (ImageIcon) temp.getIcon();
+				if (targetIcon.getDescription().equals(PAWN_WHITE)) {
+					enPassantTargetButton = temp;
+				}
+			}
+		}
+		return enPassantTargetButton;
+	}
+
+	private void pawnMove(JButton selectedButton, String promotionPiece, JButton enPassantTargetButton) {
+		if (promotionPiece != null) {
 			if (promotionPiece.equals("Q")) {
 				ImageIcon queenIcon = new ImageIcon(chessPieceImages[WHITE][QUEEN]);
 				queenIcon.setDescription(QUEEN_WHITE);

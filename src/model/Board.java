@@ -364,10 +364,7 @@ public class Board extends Observable {
 				|| (piece == PieceLibrary.BLACK_PAWN && Board.square0x88ToRank(from) == Board.RANK_4)) {
 			moveObj = MoveGenerator.getEnPassantMove(from, to, piece, this);
 			// invalid enpassant attempt
-			if (moveObj == null) {
-				logger.error("invalid enpassant move");
-				return false;
-			} else {
+			if (moveObj != null) {
 				EnPassantMove enpassantMove = (EnPassantMove) moveObj;
 				board[enpassantMove.getTo()] = board[enpassantMove.getFrom()];
 				board[enpassantMove.getFrom()] = null;
