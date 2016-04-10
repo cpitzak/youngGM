@@ -6,6 +6,30 @@ import java.util.List;
 import interfaces.PieceLibrary;
 
 public class MoveGenerator {
+	
+	public static CastleMove getCastleMove(int from, int to, int piece, Board board) {
+		CastleMove move = null;
+		if (Validator.canCastle(from, to, piece, board)) {
+			if (piece == PieceLibrary.WHITE_KING) {
+				if (to == Board.G1) { // king side
+					Move rookMove = new Move(Board.H1, Board.F1, PieceLibrary.WHITE_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				} else if (to == Board.C1) { // queen side
+					Move rookMove = new Move(Board.A1, Board.D1, PieceLibrary.WHITE_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				}
+			} else if (piece == PieceLibrary.BLACK_KING) {
+				if (to == Board.G8) { // king side
+					Move rookMove = new Move(Board.H8, Board.F8, PieceLibrary.BLACK_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				} else if (to == Board.C8) { // queen side
+					Move rookMove = new Move(Board.A8, Board.D8, PieceLibrary.BLACK_ROOK);
+					move = new CastleMove(from, to, piece, rookMove);
+				}
+			}
+		}
+		return move;
+	}
 
 	public static List<Move> getPossibleMoves(Integer piece, int from, Board board) {
 		List<Move> moves = new ArrayList<Move>();

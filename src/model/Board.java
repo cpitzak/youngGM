@@ -1,6 +1,5 @@
 package model;
 
-import java.util.List;
 import java.util.Observable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,94 +276,6 @@ public class Board extends Observable {
 		return true;
 	}
 
-	private boolean isValidMove(Move move) {
-		boolean isValid = false;
-		List<Move> moves = MoveGenerator.getPossibleMoves(move.getPiece(), move.getFrom(), this);
-		for (Move m : moves) {
-			if (m instanceof CastleMove && move instanceof CastleMove) {
-				CastleMove castleMove = (CastleMove) move;
-				if (canCastle(castleMove)) {
-					isValid = true;
-					break;
-				}
-			} else if (m instanceof EnPassantMove) {
-
-			} else if (m.getTo() == move.getTo()) {
-				isValid = true;
-				break;
-			}
-		}
-		return isValid;
-	}
-
-	private CastleMove getCastleMove(int from, int to, int piece) {
-		CastleMove move = null;
-		if (canCastle(from, to, piece)) {
-			if (piece == PieceLibrary.WHITE_KING) {
-				if (to == G1) { // king side
-					Move rookMove = new Move(H1, F1, PieceLibrary.WHITE_ROOK);
-					move = new CastleMove(from, to, piece, rookMove);
-				} else if (to == C1) { // queen side
-					Move rookMove = new Move(A1, D1, PieceLibrary.WHITE_ROOK);
-					move = new CastleMove(from, to, piece, rookMove);
-				}
-			} else if (piece == PieceLibrary.BLACK_KING) {
-				if (to == G8) { // king side
-					Move rookMove = new Move(H8, F8, PieceLibrary.BLACK_ROOK);
-					move = new CastleMove(from, to, piece, rookMove);
-				} else if (to == C8) { // queen side
-					Move rookMove = new Move(A8, D8, PieceLibrary.BLACK_ROOK);
-					move = new CastleMove(from, to, piece, rookMove);
-				}
-			}
-		}
-		return move;
-	}
-
-	private boolean canCastle(int from, int to, int piece) {
-		boolean canCastle = false;
-		if (piece == PieceLibrary.WHITE_KING) {
-			if (this.whiteCanCastleKingSide && from == E1 && to == G1 && board[E1] == PieceLibrary.WHITE_KING
-					&& board[H1] == PieceLibrary.WHITE_ROOK && board[F1] == null && board[G1] == null) {
-				canCastle = true;
-			} else if (this.whiteCanCastleQueenSide && from == E1 && to == C1 && board[E1] == PieceLibrary.WHITE_KING
-					&& board[A1] == PieceLibrary.WHITE_ROOK && board[B1] == null && board[C1] == null
-					&& board[D1] == null) {
-				canCastle = true;
-			}
-		} else if (piece == PieceLibrary.BLACK_KING) {
-			if (this.blackCanCastleKingSide && from == E8 && to == G8 && board[E8] == PieceLibrary.BLACK_KING
-					&& board[H8] == PieceLibrary.BLACK_ROOK && board[F8] == null && board[G8] == null) {
-				canCastle = true;
-			} else if (this.blackCanCastleQueenSide && from == E8 && to == C8 && board[E8] == PieceLibrary.BLACK_KING
-					&& board[A8] == PieceLibrary.BLACK_ROOK && board[B8] == null && board[C8] == null
-					&& board[D8] == null) {
-				canCastle = true;
-			}
-		}
-		return canCastle;
-	}
-
-	private boolean canCastle(CastleMove move) {
-		boolean canCastle = false;
-		if (move.isKingSideWhite() && this.whiteCanCastleKingSide && board[E1] == PieceLibrary.WHITE_KING
-				&& board[H1] == PieceLibrary.WHITE_ROOK && board[F1] == null && board[G1] == null) {
-			canCastle = true;
-		} else if (move.isKingSideBlack() && this.blackCanCastleKingSide && board[E8] == PieceLibrary.BLACK_KING
-				&& board[H8] == PieceLibrary.BLACK_ROOK && board[F8] == null && board[G8] == null) {
-			canCastle = true;
-		} else if (move.isQueenSideWhite() && this.whiteCanCastleQueenSide && board[E1] == PieceLibrary.WHITE_KING
-				&& board[A1] == PieceLibrary.WHITE_ROOK && board[B1] == null && board[C1] == null
-				&& board[D1] == null) {
-			canCastle = true;
-		} else if (move.isQueenSideBlack() && this.blackCanCastleQueenSide && board[E8] == PieceLibrary.BLACK_KING
-				&& board[A8] == PieceLibrary.BLACK_ROOK && board[B8] == null && board[C8] == null
-				&& board[D8] == null) {
-			canCastle = true;
-		}
-		return canCastle;
-	}
-
 	public boolean isSquareEmpty(String algebraicSquare) {
 		Integer squareInt = SquareLibrary.stringToIntMap.get(algebraicSquare);
 		if (squareInt == null) {
@@ -418,7 +329,7 @@ public class Board extends Observable {
 		// king trying to castle
 		if ((from == E1 && to == G1) || (from == E1 && to == C1) || (from == E8 && to == G8)
 				|| (from == E8 && to == C8)) {
-			moveObj = getCastleMove(from, to, piece);
+			moveObj = MoveGenerator.getCastleMove(from, to, piece, this);
 			// invalid castle attempt
 			if (moveObj == null) {
 				logger.error("invalid move");
@@ -431,7 +342,7 @@ public class Board extends Observable {
 			moveObj = new Move(from, to, piece);
 		}
 
-		if (!isValidMove(moveObj)) {
+		if (!Validator.isValidMove(moveObj, this)) {
 			logger.error("invalid move");
 			return false;
 		}
