@@ -2,14 +2,14 @@ package model;
 
 public class PromotionMove extends Move {
 	
-	private int promotionPiece;
+	private Integer promotionPiece;
 	
-	public PromotionMove(int from, int to, int piece, int promotionPiece) {
+	public PromotionMove(int from, int to, int piece, Integer promotionPiece) {
 		super(from, to, piece);
 		this.promotionPiece = promotionPiece;
 	}
 	
-	public int getPromotionPiece() {
+	public Integer getPromotionPiece() {
 		return promotionPiece;
 	}
 

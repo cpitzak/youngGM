@@ -316,7 +316,7 @@ public class Board extends Observable {
 			logger.error("malformed move");
 			return false;
 		}
-		
+
 		if (PieceLibrary.isWhite(board[from]) && !isWhitesTurn) {
 			logger.error("it's black's turn");
 			return false;
@@ -332,7 +332,6 @@ public class Board extends Observable {
 
 		int piece = board[from];
 
-		
 		Move moveObj = null;
 		// king trying to castle
 		if ((from == E1 && to == G1) || (from == E1 && to == C1) || (from == E8 && to == G8)
@@ -362,29 +361,26 @@ public class Board extends Observable {
 				return true;
 			}
 		}
-		
-		// wasn't trying to castle
-		if (moveObj == null) {
-			moveObj = new Move(from, to, piece);
-		}
-
-		if (!Validator.isValidMove(moveObj, this)) {
-			logger.error("invalid move");
-			return false;
-		}
 
 		if (promotion != null) {
 			// promotion
 			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
-			if (promotionPiece == null || to == null || from == null) {
+			if (promotionPiece == null) {
 				logger.error("malformed move");
+				return false;
+			}
+			
+			PromotionMove promotionMove = new PromotionMove(from, to, piece, promotionPiece);
+			if (!Validator.isValidMove(promotionMove, this)) {
+				logger.error("invalid promotion move");
 				return false;
 			}
 			board[to] = promotionPiece;
 			board[from] = null;
 		} else if (toSquare.length() == 2) {
-			if (from == null || to == null) {
-				logger.error("malformed move");
+			moveObj = new Move(from, to, piece);
+			if (!Validator.isValidMove(moveObj, this)) {
+				logger.error("invalid move");
 				return false;
 			}
 			board[to] = board[from];
@@ -413,16 +409,20 @@ public class Board extends Observable {
 		isWhitesTurn = !isWhitesTurn;
 		return true;
 	}
+	
+	public static boolean isOnBoard(int square0x88) {
+		return (square0x88 & 0x88) == 0;
+	}
 
-	public int rankFileToSquare0x88(int rank, int file) {
+	public static int rankFileToSquare0x88(int rank, int file) {
 		return 16 * rank + file;
 	}
 
-	public int square0x88ToFile(int square0x88) {
+	public static int square0x88ToFile(int square0x88) {
 		return square0x88 & 7;
 	}
 
-	public int square0x88ToRank(int square0x88) {
+	public static int square0x88ToRank(int square0x88) {
 		return square0x88 >> 4;
 	}
 

@@ -18,12 +18,34 @@ public class Validator {
 				}
 			} else if (m instanceof EnPassantMove) {
 
-			} else if (m.getTo() == move.getTo()) {
+			} else if (m instanceof PromotionMove) {
+				PromotionMove promotionMove = (PromotionMove) move;
+				if (canPromote(promotionMove, board)) {
+					if (m.getTo() == promotionMove.getTo() && promotionMove.getPromotionPiece() != null) {
+						isValid = true;
+						break;
+					}
+				}
+			}
+			if (m.getTo() == move.getTo()) {
 				isValid = true;
 				break;
 			}
 		}
 		return isValid;
+	}
+
+	private static boolean canPromote(PromotionMove move, Board board) {
+		Integer[] intBoard = board.getBoard();
+		boolean canPromote = false;
+		if (move.getPiece() == PieceLibrary.WHITE_PAWN && Board.square0x88ToRank(move.getFrom()) == Board.RANK_7
+				&& intBoard[move.getFrom()] == PieceLibrary.WHITE_PAWN) {
+			canPromote = true;
+		} else if (move.getPiece() == PieceLibrary.BLACK_PAWN && Board.square0x88ToRank(move.getFrom()) == Board.RANK_2
+				&& intBoard[move.getFrom()] == PieceLibrary.BLACK_PAWN) {
+			canPromote = true;
+		}
+		return canPromote;
 	}
 
 	public static boolean canCastle(int from, int to, int piece, Board board) {
