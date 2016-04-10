@@ -53,7 +53,7 @@ public class Validator {
 		}
 		return canPromote;
 	}
-	
+
 	public static boolean canEnPassant(EnPassantMove move, Board board) {
 		return canCastle(move.getFrom(), move.getTo(), move.getPiece(), board);
 	}
@@ -64,17 +64,18 @@ public class Validator {
 		if (piece == PieceLibrary.WHITE_PAWN) {
 			boolean left = (from + 15) == to;
 			boolean right = (from + 17) == to;
-			if (Board.square0x88ToRank(from) == Board.RANK_5 && intBoard[from] == PieceLibrary.WHITE_PAWN
-					&& intBoard[to] == null && (left && intBoard[from - 1] == PieceLibrary.BLACK_PAWN)
-					|| (right && intBoard[from + 1] == PieceLibrary.BLACK_PAWN)) {
+			if ((Board.square0x88ToRank(from) == Board.RANK_5 && intBoard[from] == PieceLibrary.WHITE_PAWN
+					&& intBoard[to] == null)
+					&& ((left && intBoard[from - 1] == PieceLibrary.BLACK_PAWN)
+							|| (right && intBoard[from + 1] == PieceLibrary.BLACK_PAWN))) {
 				canEnPassant = true;
 			}
 		} else if (piece == PieceLibrary.BLACK_PAWN) {
 			boolean left = (from - 17) == to;
 			boolean right = (from - 15) == to;
-			if (Board.square0x88ToRank(from) == Board.RANK_4 && intBoard[from] == PieceLibrary.BLACK_PAWN
-					&& intBoard[to] == null && (left && intBoard[from - 1] == PieceLibrary.WHITE_PAWN)
-					|| (right && intBoard[from + 1] == PieceLibrary.WHITE_PAWN)) {
+			if ((Board.square0x88ToRank(from) == Board.RANK_4 && intBoard[from] == PieceLibrary.BLACK_PAWN
+					&& intBoard[to] == null) && ((left && intBoard[from - 1] == PieceLibrary.WHITE_PAWN)
+					|| (right && intBoard[from + 1] == PieceLibrary.WHITE_PAWN))) {
 				canEnPassant = true;
 			}
 		}
