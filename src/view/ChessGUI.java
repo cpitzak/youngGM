@@ -100,7 +100,16 @@ public class ChessGUI implements Observer, ActionListener {
 			}
 		};
 		tools.add(newGameAction);
-		// tools.add(new JButton("Save")); // TODO - add functionality!
+
+		Action undoAction = new AbstractAction("Undo") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO: if undo move successful update GUI
+				controller.undoMove();
+			}
+		};
+		tools.add(undoAction);
 		// tools.add(new JButton("Restore")); // TODO - add functionality!
 		// tools.addSeparator();
 		// tools.add(new JButton("Resign")); // TODO - add functionality!

@@ -35,4 +35,10 @@ public class Controller {
 		return board.isWhitesTurn();
 	}
 	
+	public boolean undoMove() {
+		boolean result = board.undoMove();
+		board.print();
+		return result;
+	}
+	
 }

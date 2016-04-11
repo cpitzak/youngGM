@@ -97,6 +97,8 @@ public class Board extends Observable {
 	private int halfMoveClock;
 	private int fullMoveClock;
 
+	private History history = new History();
+
 	public Board() {
 		initBoard();
 	}
@@ -116,6 +118,7 @@ public class Board extends Observable {
 		blackCanCastleKingSide = true;
 		blackCanCastleQueenSide = true;
 		enPassantTargetSquare = null;
+		history.record(null, this);
 	}
 
 	private void setupBoard() {
@@ -283,6 +286,45 @@ public class Board extends Observable {
 		}
 		return board[squareInt] == null;
 	}
+	
+	public boolean undoMove() {
+		if (history.size() < 2) {
+			return false;
+		}
+		State state = history.pop();
+		Move move = state.getMove();
+		
+		if (move instanceof CastleMove) {
+			CastleMove castleMove = (CastleMove) move;
+			if (castleMove.isKingSideWhite()) {
+				board[castleMove.getFrom()] = board[castleMove.getTo()];
+				board[castleMove.getTo()] = null;
+				board[castleMove.getRookMove().getFrom()] = board[castleMove.getRookMove().getTo()];
+				board[castleMove.getRookMove().getTo()] = null;
+			}
+		} else if (move instanceof EnPassantMove) {
+			
+		} else if (move instanceof PromotionMove) {
+			
+		} else {
+			
+		}
+		
+		State stateBeforeMove = history.peek();
+		updateState(stateBeforeMove);
+		return true;
+	}
+	
+	private void updateState(State state) {
+		this.isWhitesTurn = state.isWhitesTurn();
+		this.whiteCanCastleKingSide = state.isWhiteCanCastleKingSide();
+		this.whiteCanCastleQueenSide = state.isWhiteCanCastleQueenSide();
+		this.blackCanCastleKingSide = state.isBlackCanCastleKingSide();
+		this.blackCanCastleQueenSide = state.isBlackCanCastleQueenSide();
+		this.enPassantTargetSquare = state.getEnPassantTargetSquare();
+		this.halfMoveClock = state.getHalfMoveClock();
+		this.fullMoveClock = state.getFullMoveClock();
+	}
 
 	// The move format is in long algebraic notation.
 	// A nullmove from the Engine to the GUI should be sent as 0000.
@@ -328,17 +370,16 @@ public class Board extends Observable {
 
 		int piece = board[from];
 
-		Move moveObj = null;
 		// king trying to castle
 		if ((from == E1 && to == G1) || (from == E1 && to == C1) || (from == E8 && to == G8)
 				|| (from == E8 && to == C8)) {
-			moveObj = MoveGenerator.getCastleMove(from, to, piece, this);
+			Move castleAttemptMove = MoveGenerator.getCastleMove(from, to, piece, this);
 			// invalid castle attempt
-			if (moveObj == null) {
+			if (castleAttemptMove == null) {
 				logger.error("invalid castle move");
 				return false;
 			} else {
-				CastleMove castleMove = (CastleMove) moveObj;
+				CastleMove castleMove = (CastleMove) castleAttemptMove;
 				board[castleMove.getTo()] = board[castleMove.getFrom()];
 				board[castleMove.getFrom()] = null;
 				board[castleMove.getRookMove().getTo()] = board[castleMove.getRookMove().getFrom()];
@@ -354,31 +395,31 @@ public class Board extends Observable {
 				}
 				// update whos turn it is
 				isWhitesTurn = !isWhitesTurn;
+				history.record(castleMove, this);
 				return true;
 			}
 		} else if ((piece == PieceLibrary.WHITE_PAWN && Board.square0x88ToRank(from) == Board.RANK_5)
 				|| (piece == PieceLibrary.BLACK_PAWN && Board.square0x88ToRank(from) == Board.RANK_4)) {
-			moveObj = MoveGenerator.getEnPassantMove(from, to, piece, this);
+			Move enPassantAttemptMove = MoveGenerator.getEnPassantMove(from, to, piece, this);
 			// invalid enpassant attempt
-			if (moveObj != null) {
-				EnPassantMove enpassantMove = (EnPassantMove) moveObj;
+			if (enPassantAttemptMove != null) {
+				EnPassantMove enpassantMove = (EnPassantMove) enPassantAttemptMove;
 				board[enpassantMove.getTo()] = board[enpassantMove.getFrom()];
 				board[enpassantMove.getFrom()] = null;
 				board[enpassantMove.getTargetSquare()] = null;
 				// update whos turn it is
 				isWhitesTurn = !isWhitesTurn;
+				history.record(enpassantMove, this);
 				return true;
 			}
 		}
 
 		if (promotion != null) {
-			// promotion
 			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
 			if (promotionPiece == null) {
 				logger.error("malformed move");
 				return false;
 			}
-
 			PromotionMove promotionMove = new PromotionMove(from, to, piece, promotionPiece);
 			if (!Validator.isValidMove(promotionMove, this)) {
 				logger.error("invalid promotion move");
@@ -386,9 +427,13 @@ public class Board extends Observable {
 			}
 			board[to] = promotionPiece;
 			board[from] = null;
+			// update whos turn it is
+			isWhitesTurn = !isWhitesTurn;
+			history.record(promotionMove, this);
+			return true;
 		} else if (toSquare.length() == 2) {
-			moveObj = new Move(from, to, piece);
-			if (!Validator.isValidMove(moveObj, this)) {
+			Move generalMove = new Move(from, to, piece);
+			if (!Validator.isValidMove(generalMove, this)) {
 				logger.error("invalid move");
 				return false;
 			}
@@ -409,14 +454,13 @@ public class Board extends Observable {
 			} else if (piece == PieceLibrary.BLACK_ROOK && from == A8) {
 				this.blackCanCastleQueenSide = false;
 			}
-		} else {
-			logger.error(
-					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
-			return false;
+			// update whos turn it is
+			isWhitesTurn = !isWhitesTurn;
+			history.record(generalMove, this);
+			return true;
 		}
-		// update whos turn it is
-		isWhitesTurn = !isWhitesTurn;
-		return true;
+		logger.error("malformed move tried to be made, move format is in long algebraic notation. see uci interface");
+		return false;
 	}
 
 	public static boolean isOnBoard(int square0x88) {
