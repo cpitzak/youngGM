@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Stack;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -65,9 +66,11 @@ public class ChessGUI implements Observer, ActionListener {
 	private static final String KNIGHT_WHITE = "KNIGHT_WHITE";
 	private static final String BISHOP_WHITE = "BISHOP_WHITE";
 
+	private Stack<Move> moveHistory;
+
 	private String algebraicMove = "";
 
-	private JButton fromPieceButton;
+	private Square fromPieceSquare;
 	private ImageIcon transparentIcon;
 
 	private String[][] algebraicNotation = new String[][] { { "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" },
@@ -97,16 +100,32 @@ public class ChessGUI implements Observer, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				controller.resetBoard();
 				setupNewGame();
+				fromPieceSquare = null;
+				moveHistory = new Stack<Move>();
 			}
 		};
 		tools.add(newGameAction);
 
 		Action undoAction = new AbstractAction("Undo") {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO: if undo move successful update GUI
-				controller.undoMove();
+				if (!moveHistory.isEmpty()) {
+					controller.undoMove();
+					Move move = moveHistory.pop();
+					move.getFrom().getButton().setIcon(move.getTo().getButton().getIcon());
+					move.getTo().getButton().setIcon(transparentIcon);
+					if (move.getSecondFrom() != null && move.getSecondTo() != null) {
+						move.getSecondFrom().getButton().setIcon(move.getSecondTo().getButton().getIcon());
+						move.getSecondTo().getButton().setIcon(transparentIcon);
+					}
+					if (controller.isWhiteTurn()) {
+						message.setText("White's Turn");
+					} else {
+						message.setText("Black's Turn");
+					}
+				}
 			}
 		};
 		tools.add(undoAction);
@@ -291,15 +310,15 @@ public class ChessGUI implements Observer, ActionListener {
 			// selected a chess board square
 			if (selectedSquare != null) {
 				String algebraicSquare = algebraicNotation[selectedSquare.getCol()][selectedSquare.getRow()];
-				if (fromPieceButton == null) {
+				if (fromPieceSquare == null) {
 					if (!controller.isSquareEmpty(algebraicSquare)) {
-						fromPieceButton = selectedButton;
+						fromPieceSquare = selectedSquare;
 						algebraicMove = algebraicSquare;
 					}
 				} else {
 					algebraicMove += algebraicSquare;
-					Square fromSquare = getButtonSquareInChessBoardSquares(fromPieceButton);
-					ImageIcon fromIcon = (ImageIcon) fromPieceButton.getIcon();
+					Square fromSquare = getButtonSquareInChessBoardSquares(fromPieceSquare.getButton());
+					ImageIcon fromIcon = (ImageIcon) fromPieceSquare.getButton().getIcon();
 					ImageIcon toIcon = (ImageIcon) selectedButton.getIcon();
 					JButton enPassantTargetButton = getEnPassantTargetButton(selectedSquare, fromSquare, fromIcon,
 							toIcon);
@@ -307,16 +326,22 @@ public class ChessGUI implements Observer, ActionListener {
 					System.out.println("move: " + algebraicMove);
 					boolean didMove = controller.makeMove(algebraicMove);
 					if (didMove) {
-						castleMove();
-						pawnMove(selectedButton, promotionPiece, enPassantTargetButton);
-						fromPieceButton.setIcon(transparentIcon);
+						boolean guiDidMove = false;
+						guiDidMove = castleMove(selectedSquare);
+						if (!guiDidMove) {
+							guiDidMove = pawnMove(selectedButton, promotionPiece, enPassantTargetButton);
+						}
+						if (!guiDidMove) {
+							selectedButton.setIcon(fromPieceSquare.getButton().getIcon());
+							fromPieceSquare.getButton().setIcon(transparentIcon);
+						}
 						if (controller.isWhiteTurn()) {
 							message.setText("White's Turn");
 						} else {
 							message.setText("Black's Turn");
 						}
 					}
-					fromPieceButton = null;
+					fromPieceSquare = null;
 					algebraicMove = "";
 				}
 			}
@@ -376,42 +401,71 @@ public class ChessGUI implements Observer, ActionListener {
 		return enPassantTargetButton;
 	}
 
-	private void pawnMove(JButton selectedButton, String promotionPiece, JButton enPassantTargetButton) {
+	private boolean pawnMove(JButton selectedButton, String promotionPiece, JButton enPassantTargetButton) {
+		boolean didMove = false;
 		if (promotionPiece != null) {
 			if (promotionPiece.equals("Q")) {
 				ImageIcon queenIcon = new ImageIcon(chessPieceImages[WHITE][QUEEN]);
 				queenIcon.setDescription(QUEEN_WHITE);
 				selectedButton.setIcon(queenIcon);
+				didMove = true;
 			} else if (promotionPiece.equals("q")) {
 				ImageIcon queenIcon = new ImageIcon(chessPieceImages[BLACK][QUEEN]);
 				queenIcon.setDescription(QUEEN_BLACK);
 				selectedButton.setIcon(queenIcon);
+				didMove = true;
 			} else {
 				throw new IllegalStateException("invalid promotion state");
 			}
 		} else if (enPassantTargetButton != null) {
-			selectedButton.setIcon(fromPieceButton.getIcon());
+			selectedButton.setIcon(fromPieceSquare.getButton().getIcon());
 			enPassantTargetButton.setIcon(transparentIcon);
 			((ImageIcon) enPassantTargetButton.getIcon()).setDescription("");
-		} else {
-			selectedButton.setIcon(fromPieceButton.getIcon());
+			didMove = true;
 		}
+		if (didMove) {
+			selectedButton.setIcon(fromPieceSquare.getButton().getIcon());
+			fromPieceSquare.getButton().setIcon(transparentIcon);
+		}
+		return didMove;
 	}
 
-	private void castleMove() {
+	private boolean castleMove(Square selectedSquare) {
+		boolean didMove = false;
+		Square secondFromSquare = null;
+		Square secondToSquare = null;
 		if (isCastleAttemptWhiteKingSide()) {
 			chessBoardSquares[5][7].setIcon(chessBoardSquares[7][7].getIcon());
+			secondFromSquare = new Square(7, 7, chessBoardSquares[7][7]);
+			secondToSquare = new Square(5, 7, chessBoardSquares[5][7]);
 			chessBoardSquares[7][7].setIcon(transparentIcon);
+			didMove = true;
 		} else if (isCastleAttemptBlackKingSide()) {
 			chessBoardSquares[5][0].setIcon(chessBoardSquares[7][0].getIcon());
+			secondFromSquare = new Square(7, 0, chessBoardSquares[7][0]);
+			secondToSquare = new Square(5, 0, chessBoardSquares[5][0]);
 			chessBoardSquares[7][0].setIcon(transparentIcon);
+			didMove = true;
 		} else if (isCastleAttemptWhiteQueenSide()) {
 			chessBoardSquares[3][7].setIcon(chessBoardSquares[0][7].getIcon());
+			secondFromSquare = new Square(0, 7, chessBoardSquares[0][7]);
+			secondToSquare = new Square(3, 7, chessBoardSquares[3][7]);
 			chessBoardSquares[0][7].setIcon(transparentIcon);
+			didMove = true;
 		} else if (isCastleAttemptBlackQueenSide()) {
 			chessBoardSquares[3][0].setIcon(chessBoardSquares[0][0].getIcon());
+			secondFromSquare = new Square(0, 0, chessBoardSquares[0][0]);
+			secondToSquare = new Square(3, 0, chessBoardSquares[3][0]);
 			chessBoardSquares[0][0].setIcon(transparentIcon);
+			didMove = true;
 		}
+		if (didMove) {
+			selectedSquare.getButton().setIcon(fromPieceSquare.getButton().getIcon());
+			fromPieceSquare.getButton().setIcon(transparentIcon);
+			Move move = new Move(fromPieceSquare, selectedSquare, secondFromSquare, secondToSquare);
+			moveHistory.push(move);
+		}
+		return didMove;
 	}
 
 	private boolean isCastleAttemptWhiteKingSide() {
@@ -468,30 +522,11 @@ public class ChessGUI implements Observer, ActionListener {
 			for (int col = 0; col < chessBoardSquares[0].length; col++) {
 				if (button == chessBoardSquares[row][col]) {
 					System.out.println("row: " + row + ", col: " + col);
-					return new Square(row, col);
+					return new Square(row, col, button);
 				}
 			}
 		}
 		return null;
-	}
-
-	private class Square {
-		int row;
-		int col;
-
-		public Square(int row, int col) {
-			this.row = row;
-			this.col = col;
-		}
-
-		public int getRow() {
-			return row;
-		}
-
-		public int getCol() {
-			return col;
-		}
-
 	}
 
 }

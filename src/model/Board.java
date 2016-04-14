@@ -286,35 +286,33 @@ public class Board extends Observable {
 		}
 		return board[squareInt] == null;
 	}
-	
+
 	public boolean undoMove() {
 		if (history.size() < 2) {
 			return false;
 		}
 		State state = history.pop();
 		Move move = state.getMove();
-		
+
 		if (move instanceof CastleMove) {
 			CastleMove castleMove = (CastleMove) move;
-			if (castleMove.isKingSideWhite()) {
-				board[castleMove.getFrom()] = board[castleMove.getTo()];
-				board[castleMove.getTo()] = null;
-				board[castleMove.getRookMove().getFrom()] = board[castleMove.getRookMove().getTo()];
-				board[castleMove.getRookMove().getTo()] = null;
-			}
+			board[castleMove.getFrom()] = board[castleMove.getTo()];
+			board[castleMove.getTo()] = null;
+			board[castleMove.getRookMove().getFrom()] = board[castleMove.getRookMove().getTo()];
+			board[castleMove.getRookMove().getTo()] = null;
 		} else if (move instanceof EnPassantMove) {
-			
+
 		} else if (move instanceof PromotionMove) {
-			
+
 		} else {
-			
+
 		}
-		
+
 		State stateBeforeMove = history.peek();
 		updateState(stateBeforeMove);
 		return true;
 	}
-	
+
 	private void updateState(State state) {
 		this.isWhitesTurn = state.isWhitesTurn();
 		this.whiteCanCastleKingSide = state.isWhiteCanCastleKingSide();
