@@ -116,9 +116,16 @@ public class ChessGUI implements Observer, ActionListener {
 					Move move = moveHistory.pop();
 					move.getFrom().getButton().setIcon(move.getTo().getButton().getIcon());
 					move.getTo().getButton().setIcon(transparentIcon);
-					if (move.getSecondFrom() != null && move.getSecondTo() != null) {
-						move.getSecondFrom().getButton().setIcon(move.getSecondTo().getButton().getIcon());
-						move.getSecondTo().getButton().setIcon(transparentIcon);
+					if (move instanceof CastleMove) {
+						Move rookMove = ((CastleMove) move).getRookMove();
+						rookMove.getFrom().getButton().setIcon(rookMove.getTo().getButton().getIcon());
+						rookMove.getTo().getButton().setIcon(transparentIcon);
+					} else if (move instanceof EnPassantMove) {
+						
+					} else if (move instanceof PromotionMove) {
+						
+					} else {
+						
 					}
 					if (controller.isWhiteTurn()) {
 						message.setText("White's Turn");
@@ -329,11 +336,13 @@ public class ChessGUI implements Observer, ActionListener {
 						boolean guiDidMove = false;
 						guiDidMove = castleMove(selectedSquare);
 						if (!guiDidMove) {
-							guiDidMove = pawnMove(selectedButton, promotionPiece, enPassantTargetButton);
+							guiDidMove = pawnMove(selectedSquare, promotionPiece, enPassantTargetButton);
 						}
 						if (!guiDidMove) {
 							selectedButton.setIcon(fromPieceSquare.getButton().getIcon());
 							fromPieceSquare.getButton().setIcon(transparentIcon);
+							Move move = new Move(fromSquare, selectedSquare);
+							moveHistory.push(move);
 						}
 						if (controller.isWhiteTurn()) {
 							message.setText("White's Turn");
@@ -401,31 +410,33 @@ public class ChessGUI implements Observer, ActionListener {
 		return enPassantTargetButton;
 	}
 
-	private boolean pawnMove(JButton selectedButton, String promotionPiece, JButton enPassantTargetButton) {
+	private boolean pawnMove(Square selectedSquare, String promotionPiece, JButton enPassantTargetButton) {
 		boolean didMove = false;
 		if (promotionPiece != null) {
 			if (promotionPiece.equals("Q")) {
 				ImageIcon queenIcon = new ImageIcon(chessPieceImages[WHITE][QUEEN]);
 				queenIcon.setDescription(QUEEN_WHITE);
-				selectedButton.setIcon(queenIcon);
+				selectedSquare.getButton().setIcon(queenIcon);
 				didMove = true;
 			} else if (promotionPiece.equals("q")) {
 				ImageIcon queenIcon = new ImageIcon(chessPieceImages[BLACK][QUEEN]);
 				queenIcon.setDescription(QUEEN_BLACK);
-				selectedButton.setIcon(queenIcon);
+				selectedSquare.getButton().setIcon(queenIcon);
 				didMove = true;
 			} else {
 				throw new IllegalStateException("invalid promotion state");
 			}
 		} else if (enPassantTargetButton != null) {
-			selectedButton.setIcon(fromPieceSquare.getButton().getIcon());
+			selectedSquare.getButton().setIcon(fromPieceSquare.getButton().getIcon());
 			enPassantTargetButton.setIcon(transparentIcon);
 			((ImageIcon) enPassantTargetButton.getIcon()).setDescription("");
 			didMove = true;
 		}
 		if (didMove) {
-			selectedButton.setIcon(fromPieceSquare.getButton().getIcon());
+			selectedSquare.getButton().setIcon(fromPieceSquare.getButton().getIcon());
 			fromPieceSquare.getButton().setIcon(transparentIcon);
+			Move move = new Move(fromPieceSquare, selectedSquare);
+			moveHistory.push(move);
 		}
 		return didMove;
 	}
@@ -462,7 +473,7 @@ public class ChessGUI implements Observer, ActionListener {
 		if (didMove) {
 			selectedSquare.getButton().setIcon(fromPieceSquare.getButton().getIcon());
 			fromPieceSquare.getButton().setIcon(transparentIcon);
-			Move move = new Move(fromPieceSquare, selectedSquare, secondFromSquare, secondToSquare);
+			Move move = new CastleMove(fromPieceSquare, selectedSquare, new Move(secondFromSquare, secondToSquare));
 			moveHistory.push(move);
 		}
 		return didMove;

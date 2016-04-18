@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import interfaces.PieceLibrary;
+import model.move.Move;
+import model.move.MoveGenerator;
 
 public class PieceInfoTest {
 	

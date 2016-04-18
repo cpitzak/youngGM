@@ -1,9 +1,11 @@
-package model;
+package model.move;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import interfaces.PieceLibrary;
+import model.Board;
+import model.Validator;
 
 public class MoveGenerator {
 	

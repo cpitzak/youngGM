@@ -2,6 +2,8 @@ package model;
 
 import java.util.Stack;
 
+import model.move.Move;
+
 public class History {
 
 	private Stack<State> states = new Stack<State>();

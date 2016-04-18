@@ -1,6 +1,7 @@
-package model;
+package model.move;
 
 import interfaces.PieceLibrary;
+import model.Board;
 
 public class CastleMove extends Move {
 

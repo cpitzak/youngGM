@@ -1,5 +1,7 @@
 package model;
 
+import model.move.Move;
+
 public class State {
 	
 	private boolean isWhitesTurn;

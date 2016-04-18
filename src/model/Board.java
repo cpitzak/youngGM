@@ -9,6 +9,11 @@ import org.apache.log4j.Logger;
 import interfaces.GeneralCommands;
 import interfaces.PieceLibrary;
 import interfaces.SquareLibrary;
+import model.move.CastleMove;
+import model.move.EnPassantMove;
+import model.move.Move;
+import model.move.MoveGenerator;
+import model.move.PromotionMove;
 
 //@formatter:off
 /**
@@ -293,11 +298,10 @@ public class Board extends Observable {
 		}
 		State state = history.pop();
 		Move move = state.getMove();
-
+		board[move.getFrom()] = board[move.getTo()];
+		board[move.getTo()] = null;
 		if (move instanceof CastleMove) {
 			CastleMove castleMove = (CastleMove) move;
-			board[castleMove.getFrom()] = board[castleMove.getTo()];
-			board[castleMove.getTo()] = null;
 			board[castleMove.getRookMove().getFrom()] = board[castleMove.getRookMove().getTo()];
 			board[castleMove.getRookMove().getTo()] = null;
 		} else if (move instanceof EnPassantMove) {

@@ -3,6 +3,11 @@ package model;
 import java.util.List;
 
 import interfaces.PieceLibrary;
+import model.move.CastleMove;
+import model.move.EnPassantMove;
+import model.move.Move;
+import model.move.MoveGenerator;
+import model.move.PromotionMove;
 
 public class Validator {
 

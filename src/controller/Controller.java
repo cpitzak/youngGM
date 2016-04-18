@@ -23,6 +23,7 @@ public class Controller {
 	
 	public boolean makeMove(String move) {
 		boolean result = board.makeMove(move);
+		System.out.println("------------------------------");
 		board.print();
 		return result;
 	}
@@ -37,6 +38,7 @@ public class Controller {
 	
 	public boolean undoMove() {
 		boolean result = board.undoMove();
+		System.out.println("------------------------------");
 		board.print();
 		return result;
 	}
