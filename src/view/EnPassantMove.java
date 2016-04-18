@@ -1,10 +1,16 @@
 package view;
 
 public class EnPassantMove extends Move {
+	
+	private Square targetSquare;
 
-	public EnPassantMove(Square from, Square to) {
+	public EnPassantMove(Square from, Square to, Square targetSquare) {
 		super(from, to);
-		// TODO Auto-generated constructor stub
+		this.targetSquare = targetSquare;
 	}
 
+	public Square getTargetSquare() {
+		return targetSquare;
+	}
+	
 }

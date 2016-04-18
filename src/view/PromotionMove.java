@@ -1,10 +1,18 @@
 package view;
 
-public class PromotionMove extends Move {
+import javax.swing.ImageIcon;
 
-	public PromotionMove(Square from, Square to) {
+public class PromotionMove extends Move {
+	
+	private ImageIcon promotionPiece;
+	
+	public PromotionMove(Square from, Square to, ImageIcon promotionPiece) {
 		super(from, to);
-		// TODO Auto-generated constructor stub
+		this.promotionPiece = promotionPiece;
+	}
+
+	public ImageIcon getPromotionPiece() {
+		return promotionPiece;
 	}
 
 }

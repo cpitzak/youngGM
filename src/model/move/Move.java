@@ -5,6 +5,7 @@ public class Move {
 	protected int from;
 	protected int to;
 	protected int piece;
+	protected Integer pieceCaptured;
 
 	public Move(int from, int to, int piece) {
 		this.from = from;
@@ -21,5 +22,11 @@ public class Move {
 	public int getPiece() {
 		return piece;
 	}
+	public Integer getPieceCaptured() {
+		return pieceCaptured;
+	}
+	public void setPieceCaptured(Integer pieceCaptured) {
+		this.pieceCaptured = pieceCaptured;
+	}	
 	
 }

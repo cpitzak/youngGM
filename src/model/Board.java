@@ -299,15 +299,20 @@ public class Board extends Observable {
 		State state = history.pop();
 		Move move = state.getMove();
 		board[move.getFrom()] = board[move.getTo()];
-		board[move.getTo()] = null;
+		if (move.getPieceCaptured() != null && !(move instanceof EnPassantMove)) {
+			board[move.getTo()] = move.getPieceCaptured();
+		} else {
+			board[move.getTo()] = null;
+		}
 		if (move instanceof CastleMove) {
 			CastleMove castleMove = (CastleMove) move;
 			board[castleMove.getRookMove().getFrom()] = board[castleMove.getRookMove().getTo()];
 			board[castleMove.getRookMove().getTo()] = null;
 		} else if (move instanceof EnPassantMove) {
-
+			EnPassantMove enPassantMove = (EnPassantMove) move;
+			board[enPassantMove.getTargetSquare()] = enPassantMove.getPieceCaptured();
 		} else if (move instanceof PromotionMove) {
-
+			board[move.getFrom()] = move.getPiece();
 		} else {
 
 		}
@@ -370,7 +375,11 @@ public class Board extends Observable {
 			promotion = moveStr.substring(4);
 		}
 
-		int piece = board[from];
+		Integer piece = board[from];
+		if (piece == null) {
+			logger.error("invalid move. can't move a piece from an empty square.");
+			return false;
+		}
 
 		// king trying to castle
 		if ((from == E1 && to == G1) || (from == E1 && to == C1) || (from == E8 && to == G8)
@@ -438,6 +447,9 @@ public class Board extends Observable {
 			if (!Validator.isValidMove(generalMove, this)) {
 				logger.error("invalid move");
 				return false;
+			}
+			if (board[to] != null) {
+				generalMove.setPieceCaptured(board[to]);
 			}
 			board[to] = board[from];
 			board[from] = null;
