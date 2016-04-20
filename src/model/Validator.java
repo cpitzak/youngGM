@@ -11,7 +11,7 @@ import model.move.PromotionMove;
 
 public class Validator {
 	
-	public static boolean inCheck(Board board) {
+	public static boolean isInCheck(Board board) {
 		boolean inCheck = false;
 		
 		return inCheck;

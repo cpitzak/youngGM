@@ -68,7 +68,7 @@ public class Board extends Observable {
 	private static final String IT_S_WHITE_S_TURN = "It's White's Turn";
 	private static final String IT_S_BLACK_S_TURN = "It's Black's Turn";
 	private static final String MALFORMED_MOVE = "Malformed Move";
-	private static final String INVALID_MOVE = "Invalid Move";
+	private static final String ILLEGAL_MOVE = "Illegal Move";
 
 	public static final int RANK_1 = 0;
 	public static final int RANK_2 = 1;
@@ -319,8 +319,6 @@ public class Board extends Observable {
 			board[enPassantMove.getTargetSquare()] = enPassantMove.getPieceCaptured();
 		} else if (move instanceof PromotionMove) {
 			board[move.getFrom()] = move.getPiece();
-		} else {
-
 		}
 
 		State stateBeforeMove = history.peek();
@@ -341,10 +339,10 @@ public class Board extends Observable {
 	
 	public String makeMove(String moveStr) {
 		String result = move(moveStr);
-		
-//		if (Validator.inCheck(this)) {
-//			didMove = false;
-//		}
+
+		if (result == null && Validator.isInCheck(this)) {
+			result = ILLEGAL_MOVE;
+		}
 		
 		return result;
 	}
@@ -359,7 +357,7 @@ public class Board extends Observable {
 		final int MAX_MOVE_LENGTH = 5;
 		if (moveStr == null || moveStr.trim().length() < MIN_MOVE_LENGTH || moveStr.trim().length() > MAX_MOVE_LENGTH) {
 			logger.error("Invalid move sent to makeMove");
-			return INVALID_MOVE;
+			return ILLEGAL_MOVE;
 		}
 		moveStr = moveStr.trim();
 		if (moveStr.length() != 4 && moveStr.length() != 5) {
@@ -394,7 +392,7 @@ public class Board extends Observable {
 		Integer piece = board[from];
 		if (piece == null) {
 			logger.error("invalid move. can't move a piece from an empty square.");
-			return INVALID_MOVE;
+			return ILLEGAL_MOVE;
 		}
 
 		// king trying to castle
@@ -403,8 +401,8 @@ public class Board extends Observable {
 			Move castleAttemptMove = MoveGenerator.getCastleMove(from, to, piece, this);
 			// invalid castle attempt
 			if (castleAttemptMove == null) {
-				logger.error(INVALID_MOVE);
-				return INVALID_MOVE;
+				logger.error(ILLEGAL_MOVE);
+				return ILLEGAL_MOVE;
 			} else {
 				CastleMove castleMove = (CastleMove) castleAttemptMove;
 				board[castleMove.getTo()] = board[castleMove.getFrom()];
@@ -461,8 +459,8 @@ public class Board extends Observable {
 		} else if (toSquare.length() == 2) {
 			Move generalMove = new Move(from, to, piece);
 			if (!Validator.isValidMove(generalMove, this)) {
-				logger.error(INVALID_MOVE);
-				return INVALID_MOVE;
+				logger.error(ILLEGAL_MOVE);
+				return ILLEGAL_MOVE;
 			}
 			if (board[to] != null) {
 				generalMove.setPieceCaptured(board[to]);

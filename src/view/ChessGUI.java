@@ -136,14 +136,12 @@ public class ChessGUI implements Observer, ActionListener {
 						} else {
 							throw new IllegalStateException("Invalid state in Undo promotion move");
 						}
-					} else {
-						
 					}
-//					if (controller.isWhiteTurn()) {
-//						message.setText("White's Turn");
-//					} else {
-//						message.setText("Black's Turn");
-//					}
+					if (controller.isWhiteTurn()) {
+						message.setText("White's Turn");
+					} else {
+						message.setText("Black's Turn");
+					}
 				}
 			}
 		};
@@ -365,11 +363,6 @@ public class ChessGUI implements Observer, ActionListener {
 							moveHistory.push(move);
 						}
 						message.setText("");
-//						if (controller.isWhiteTurn()) {
-//							message.setText("White's Turn");
-//						} else {
-//							message.setText("Black's Turn");
-//						}
 					} else {
 						message.setText(moveMessage);
 					}
