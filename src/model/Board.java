@@ -64,6 +64,12 @@ public class Board extends Observable {
 
 	private final static Logger logger = Logger.getLogger(Board.class);
 
+	private static final String INVALID_PROMOTION_MOVE = "Invalid Promotion Move";
+	private static final String IT_S_WHITE_S_TURN = "It's White's Turn";
+	private static final String IT_S_BLACK_S_TURN = "It's Black's Turn";
+	private static final String MALFORMED_MOVE = "Malformed Move";
+	private static final String INVALID_MOVE = "Invalid Move";
+
 	public static final int RANK_1 = 0;
 	public static final int RANK_2 = 1;
 	public static final int RANK_3 = 2;
@@ -332,24 +338,34 @@ public class Board extends Observable {
 		this.halfMoveClock = state.getHalfMoveClock();
 		this.fullMoveClock = state.getFullMoveClock();
 	}
+	
+	public String makeMove(String moveStr) {
+		String result = move(moveStr);
+		
+//		if (Validator.inCheck(this)) {
+//			didMove = false;
+//		}
+		
+		return result;
+	}
 
 	// The move format is in long algebraic notation.
 	// A nullmove from the Engine to the GUI should be sent as 0000.
 	// Examples: e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 	// https://chessprogramming.wikispaces.com/Algebraic+Chess+Notation#Long
 	// Algebraic Notation (LAN)
-	public boolean makeMove(String moveStr) {
+	private String move(String moveStr) {
 		final int MIN_MOVE_LENGTH = 4;
 		final int MAX_MOVE_LENGTH = 5;
 		if (moveStr == null || moveStr.trim().length() < MIN_MOVE_LENGTH || moveStr.trim().length() > MAX_MOVE_LENGTH) {
 			logger.error("Invalid move sent to makeMove");
-			return false;
+			return INVALID_MOVE;
 		}
 		moveStr = moveStr.trim();
 		if (moveStr.length() != 4 && moveStr.length() != 5) {
 			logger.error(
 					"malformed move tried to be made, move format is in long algebraic notation. see uci interface");
-			return false;
+			return MALFORMED_MOVE;
 		}
 		String fromSquare = moveStr.substring(0, 2).toLowerCase();
 		String toSquare = moveStr.substring(2, 4).trim().toLowerCase();
@@ -358,16 +374,16 @@ public class Board extends Observable {
 		Integer to = SquareLibrary.stringToIntMap.get(toSquare);
 
 		if (from == null || to == null) {
-			logger.error("malformed move");
-			return false;
+			logger.error(MALFORMED_MOVE);
+			return MALFORMED_MOVE;
 		}
 
 		if (PieceLibrary.isWhite(board[from]) && !isWhitesTurn) {
-			logger.error("it's black's turn");
-			return false;
+			logger.error(IT_S_BLACK_S_TURN);
+			return IT_S_BLACK_S_TURN;
 		} else if (PieceLibrary.isBlack(board[from]) && isWhitesTurn) {
-			logger.error("it's white's turn");
-			return false;
+			logger.error(IT_S_WHITE_S_TURN);
+			return IT_S_WHITE_S_TURN;
 		}
 
 		String promotion = null;
@@ -378,7 +394,7 @@ public class Board extends Observable {
 		Integer piece = board[from];
 		if (piece == null) {
 			logger.error("invalid move. can't move a piece from an empty square.");
-			return false;
+			return INVALID_MOVE;
 		}
 
 		// king trying to castle
@@ -387,8 +403,8 @@ public class Board extends Observable {
 			Move castleAttemptMove = MoveGenerator.getCastleMove(from, to, piece, this);
 			// invalid castle attempt
 			if (castleAttemptMove == null) {
-				logger.error("invalid castle move");
-				return false;
+				logger.error(INVALID_MOVE);
+				return INVALID_MOVE;
 			} else {
 				CastleMove castleMove = (CastleMove) castleAttemptMove;
 				board[castleMove.getTo()] = board[castleMove.getFrom()];
@@ -407,7 +423,7 @@ public class Board extends Observable {
 				// update whos turn it is
 				isWhitesTurn = !isWhitesTurn;
 				history.record(castleMove, this);
-				return true;
+				return null;
 			}
 		} else if ((piece == PieceLibrary.WHITE_PAWN && Board.square0x88ToRank(from) == Board.RANK_5)
 				|| (piece == PieceLibrary.BLACK_PAWN && Board.square0x88ToRank(from) == Board.RANK_4)) {
@@ -421,32 +437,32 @@ public class Board extends Observable {
 				// update whos turn it is
 				isWhitesTurn = !isWhitesTurn;
 				history.record(enpassantMove, this);
-				return true;
+				return null;
 			}
 		}
 
 		if (promotion != null) {
 			Integer promotionPiece = PieceLibrary.stringToIntMap.get(promotion);
 			if (promotionPiece == null) {
-				logger.error("malformed move");
-				return false;
+				logger.error(MALFORMED_MOVE);
+				return MALFORMED_MOVE;
 			}
 			PromotionMove promotionMove = new PromotionMove(from, to, piece, promotionPiece);
 			if (!Validator.isValidMove(promotionMove, this)) {
-				logger.error("invalid promotion move");
-				return false;
+				logger.error(INVALID_PROMOTION_MOVE);
+				return INVALID_PROMOTION_MOVE;
 			}
 			board[to] = promotionPiece;
 			board[from] = null;
 			// update whos turn it is
 			isWhitesTurn = !isWhitesTurn;
 			history.record(promotionMove, this);
-			return true;
+			return null;
 		} else if (toSquare.length() == 2) {
 			Move generalMove = new Move(from, to, piece);
 			if (!Validator.isValidMove(generalMove, this)) {
-				logger.error("invalid move");
-				return false;
+				logger.error(INVALID_MOVE);
+				return INVALID_MOVE;
 			}
 			if (board[to] != null) {
 				generalMove.setPieceCaptured(board[to]);
@@ -471,10 +487,10 @@ public class Board extends Observable {
 			// update whos turn it is
 			isWhitesTurn = !isWhitesTurn;
 			history.record(generalMove, this);
-			return true;
+			return null;
 		}
 		logger.error("malformed move tried to be made, move format is in long algebraic notation. see uci interface");
-		return false;
+		return MALFORMED_MOVE;
 	}
 
 	public static boolean isOnBoard(int square0x88) {

@@ -139,11 +139,11 @@ public class ChessGUI implements Observer, ActionListener {
 					} else {
 						
 					}
-					if (controller.isWhiteTurn()) {
-						message.setText("White's Turn");
-					} else {
-						message.setText("Black's Turn");
-					}
+//					if (controller.isWhiteTurn()) {
+//						message.setText("White's Turn");
+//					} else {
+//						message.setText("Black's Turn");
+//					}
 				}
 			}
 		};
@@ -343,8 +343,8 @@ public class ChessGUI implements Observer, ActionListener {
 							toIcon);
 					String promotionPiece = getPromotionPiece(selectedSquare, fromIcon);
 					System.out.println("move: " + algebraicMove);
-					boolean didMove = controller.makeMove(algebraicMove);
-					if (didMove) {
+					String moveMessage = controller.makeMove(algebraicMove);
+					if (moveMessage == null) {
 						boolean guiDidMove = false;
 						guiDidMove = castleMove(selectedSquare);
 						if (!guiDidMove) {
@@ -364,11 +364,14 @@ public class ChessGUI implements Observer, ActionListener {
 							}
 							moveHistory.push(move);
 						}
-						if (controller.isWhiteTurn()) {
-							message.setText("White's Turn");
-						} else {
-							message.setText("Black's Turn");
-						}
+						message.setText("");
+//						if (controller.isWhiteTurn()) {
+//							message.setText("White's Turn");
+//						} else {
+//							message.setText("Black's Turn");
+//						}
+					} else {
+						message.setText(moveMessage);
 					}
 					fromPieceSquare = null;
 					algebraicMove = "";

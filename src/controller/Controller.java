@@ -21,8 +21,8 @@ public class Controller {
 		board.print();
 	}
 	
-	public boolean makeMove(String move) {
-		boolean result = board.makeMove(move);
+	public String makeMove(String move) {
+		String result = board.makeMove(move);
 		System.out.println("------------------------------");
 		board.print();
 		return result;

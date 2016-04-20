@@ -10,6 +10,12 @@ import model.move.MoveGenerator;
 import model.move.PromotionMove;
 
 public class Validator {
+	
+	public static boolean inCheck(Board board) {
+		boolean inCheck = false;
+		
+		return inCheck;
+	}
 
 	public static boolean isValidMove(Move move, Board board) {
 		boolean isValid = false;
